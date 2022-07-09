@@ -5,7 +5,11 @@ namespace Pinetime {
     namespace Screens {
       namespace Symbols {
         static constexpr const char* none = "";
+        static constexpr const char* batteryFull = "\xEF\x89\x80";
+        static constexpr const char* batteryEmpty = "\xEF\x89\x84";
+        static constexpr const char* batteryThreeQuarter = "\xEF\x89\x81";
         static constexpr const char* batteryHalf = "\xEF\x89\x82";
+        static constexpr const char* batteryOneQuarter = "\xEF\x89\x83";
         static constexpr const char* heartBeat = "\xEF\x88\x9E";
         static constexpr const char* bluetooth = "\xEF\x8A\x94";
         static constexpr const char* plug = "\xEF\x87\xA6";
