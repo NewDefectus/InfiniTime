@@ -64,12 +64,24 @@ void AlarmController::ScheduleAlarm() {
   tmAlarmTime->tm_sec = 0;
 
   // if alarm is in weekday-only mode, make sure it shifts to the next weekday
-  if (recurrence == RecurType::Weekdays) {
-    if (tmAlarmTime->tm_wday == 0) { // Sunday, shift 1 day
-      tmAlarmTime->tm_mday += 1;
-    } else if (tmAlarmTime->tm_wday == 6) { // Saturday, shift 2 days
-      tmAlarmTime->tm_mday += 2;
-    }
+  switch (recurrence) {
+    case RecurType::Weekdays:
+      if (tmAlarmTime->tm_wday == 0) { // Sunday, shift 1 day
+        tmAlarmTime->tm_mday += 1;
+      } else if (tmAlarmTime->tm_wday == 6) { // Saturday, shift 2 days
+        tmAlarmTime->tm_mday += 2;
+      }
+      break;
+    case RecurType::JewishWeekdays:
+      if (tmAlarmTime->tm_wday == 6) { // Saturday, shift 1 day
+        tmAlarmTime->tm_mday += 1;
+      }
+      else if (tmAlarmTime->tm_wday == 5) { // Friday, shift 2 days
+        tmAlarmTime->tm_mday += 2;
+      }
+      break;
+    default:
+      break;
   }
   tmAlarmTime->tm_isdst = -1; // use system timezone setting to determine DST
 

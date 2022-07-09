@@ -39,7 +39,7 @@ namespace Pinetime {
       uint32_t SecondsToAlarm();
       void StopAlerting();
       enum class AlarmState { Not_Set, Set, Alerting };
-      enum class RecurType { None, Daily, Weekdays };
+      enum class RecurType { None, Daily, Weekdays, JewishWeekdays };
       uint8_t Hours() const {
         return hours;
       }
