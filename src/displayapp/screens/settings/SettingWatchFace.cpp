@@ -8,13 +8,13 @@
 using namespace Pinetime::Applications::Screens;
 
 namespace {
-  void event_handler(lv_obj_t* obj, lv_event_t event) {
-    auto* screen = static_cast<SettingWatchFace*>(obj->user_data);
+  static void event_handler(lv_obj_t* obj, lv_event_t event) {
+    SettingWatchFace* screen = static_cast<SettingWatchFace*>(obj->user_data);
     screen->UpdateSelected(obj, event);
   }
 }
 
-constexpr std::array<const char*, 4> SettingWatchFace::options;
+constexpr std::array<const char*, 5> SettingWatchFace::options;
 
 SettingWatchFace::SettingWatchFace(Pinetime::Applications::DisplayApp* app, Pinetime::Controllers::Settings& settingsController)
   : Screen(app), settingsController {settingsController} {
@@ -27,9 +27,9 @@ SettingWatchFace::SettingWatchFace(Pinetime::Applications::DisplayApp* app, Pine
   lv_obj_set_style_local_pad_inner(container1, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, 5);
   lv_obj_set_style_local_border_width(container1, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, 0);
 
-  lv_obj_set_pos(container1, 10, 60);
+  lv_obj_set_pos(container1, 10, 30);
   lv_obj_set_width(container1, LV_HOR_RES - 20);
-  lv_obj_set_height(container1, LV_VER_RES - 50);
+  lv_obj_set_height(container1, LV_VER_RES - 30);
   lv_cont_set_layout(container1, LV_LAYOUT_COLUMN_LEFT);
 
   lv_obj_t* title = lv_label_create(lv_scr_act(), nullptr);
