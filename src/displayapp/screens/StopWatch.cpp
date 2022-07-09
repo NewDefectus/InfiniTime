@@ -8,6 +8,10 @@
 
 using namespace Pinetime::Applications::Screens;
 
+static States currentState = States::Init;
+static TickType_t startTime = 0;
+static TickType_t oldTimeElapsed = 0;
+
 namespace {
   TimeSeparated_t convertTicksToTimeSegments(const TickType_t timeElapsed) {
     // Centiseconds
@@ -33,9 +37,6 @@ namespace {
 StopWatch::StopWatch(DisplayApp* app, System::SystemTask& systemTask)
   : Screen(app),
     systemTask {systemTask},
-    currentState {States::Init},
-    startTime {},
-    oldTimeElapsed {},
     currentTimeSeparated {},
     lapBuffer {},
     lapNr {} {
@@ -85,6 +86,7 @@ StopWatch::StopWatch(DisplayApp* app, System::SystemTask& systemTask)
   lv_label_set_text_static(lapTwoText, "");
 
   taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_MID, this);
+  UpdateDisplay();
 }
 
 StopWatch::~StopWatch() {
@@ -110,23 +112,25 @@ void StopWatch::Reset() {
   lv_obj_set_state(txtStopLap, LV_STATE_DISABLED);
 }
 
-void StopWatch::Start() {
+void StopWatch::StyleRunning() {
   lv_obj_set_state(btnStopLap, LV_STATE_DEFAULT);
   lv_obj_set_state(txtStopLap, LV_STATE_DEFAULT);
   lv_obj_set_style_local_text_color(time, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_MAKE(0x0, 0xb0, 0x0));
   lv_obj_set_style_local_text_color(msecTime, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_MAKE(0x0, 0xb0, 0x0));
   lv_label_set_text_static(txtPlayPause, Symbols::pause);
   lv_label_set_text_static(txtStopLap, Symbols::lapsFlag);
-  startTime = xTaskGetTickCount();
-  currentState = States::Running;
   systemTask.PushMessage(Pinetime::System::Messages::DisableSleeping);
 }
 
-void StopWatch::Pause() {
-  startTime = 0;
-  // Store the current time elapsed in cache
-  oldTimeElapsed += timeElapsed;
-  currentState = States::Halted;
+void StopWatch::Start() {
+  StyleRunning();
+  startTime = xTaskGetTickCount();
+  currentState = States::Running;
+}
+
+void StopWatch::StyleHalt() {
+  lv_obj_set_state(btnStopLap, LV_STATE_DEFAULT);
+  lv_obj_set_state(txtStopLap, LV_STATE_DEFAULT);
   lv_label_set_text_static(txtPlayPause, Symbols::play);
   lv_label_set_text_static(txtStopLap, Symbols::stop);
   lv_obj_set_style_local_text_color(time, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_YELLOW);
@@ -134,13 +138,29 @@ void StopWatch::Pause() {
   systemTask.PushMessage(Pinetime::System::Messages::EnableSleeping);
 }
 
-void StopWatch::Refresh() {
+void StopWatch::Pause() {
+  startTime = 0;
+  // Store the current time elapsed in cache
+  oldTimeElapsed += timeElapsed;
+  currentState = States::Halted;
+  StopWatch::StyleHalt();
+}
+
+void StopWatch::RefreshOnce() {
   if (currentState == States::Running) {
     timeElapsed = xTaskGetTickCount() - startTime;
-    currentTimeSeparated = convertTicksToTimeSegments((oldTimeElapsed + timeElapsed));
+  } else {
+    timeElapsed = 0;
+  }
+  currentTimeSeparated = convertTicksToTimeSegments((oldTimeElapsed + timeElapsed));
 
-    lv_label_set_text_fmt(time, "%02d:%02d", currentTimeSeparated.mins, currentTimeSeparated.secs);
-    lv_label_set_text_fmt(msecTime, "%02d", currentTimeSeparated.hundredths);
+  lv_label_set_text_fmt(time, "%02d:%02d", currentTimeSeparated.mins, currentTimeSeparated.secs);
+  lv_label_set_text_fmt(msecTime, "%02d", currentTimeSeparated.hundredths);
+}
+
+void StopWatch::Refresh() {
+  if (currentState == States::Running) {
+    StopWatch::RefreshOnce();
   }
 }
 
@@ -155,6 +175,15 @@ void StopWatch::playPauseBtnEventHandler(lv_event_t event) {
   } else if (currentState == States::Halted) {
     Start();
   }
+}
+
+void StopWatch::UpdateDisplay() {
+  if (currentState == States::Running) {
+    StyleRunning();
+  } else if (currentState == States::Halted) {
+    StyleHalt();
+  }
+  RefreshOnce();
 }
 
 void StopWatch::stopLapBtnEventHandler(lv_event_t event) {

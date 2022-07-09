@@ -74,12 +74,14 @@ namespace Pinetime::Applications::Screens {
     void Start();
     void Pause();
 
+    void RefreshOnce();
+    void StyleRunning();
+    void StyleHalt();
+    void UpdateDisplay();
+
   private:
     Pinetime::System::SystemTask& systemTask;
     TickType_t timeElapsed;
-    States currentState;
-    TickType_t startTime;
-    TickType_t oldTimeElapsed;
     TimeSeparated_t currentTimeSeparated; // Holds Mins, Secs, millisecs
     LapTextBuffer_t<2> lapBuffer;
     int lapNr = 0;
