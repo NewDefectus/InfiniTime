@@ -277,6 +277,10 @@ void Alarm::SetRecurButtonState() {
       break;
     case AlarmController::RecurType::Weekdays:
       lv_label_set_text_static(txtRecur, "MON-FRI");
+      break;
+    case AlarmController::RecurType::JewishWeekdays:
+      lv_label_set_text_static(txtRecur, "SUN-THU");
+      break;
   }
 }
 
@@ -290,7 +294,11 @@ void Alarm::ToggleRecurrence() {
       alarmController.SetRecurrence(AlarmController::RecurType::Weekdays);
       break;
     case AlarmController::RecurType::Weekdays:
+      alarmController.SetRecurrence(AlarmController::RecurType::JewishWeekdays);
+      break;
+    case AlarmController::RecurType::JewishWeekdays:
       alarmController.SetRecurrence(AlarmController::RecurType::None);
+      break;
   }
   SetRecurButtonState();
 }
