@@ -23,6 +23,7 @@
 #include "components/ble/MotionService.h"
 #include "components/ble/weather/WeatherService.h"
 #include "components/fs/FS.h"
+#include "AppleNotificationCenterServiceClient.h"
 
 namespace Pinetime {
   namespace Drivers {
@@ -92,6 +93,7 @@ namespace Pinetime {
 
       DeviceInformationService deviceInformationService;
       CurrentTimeClient currentTimeClient;
+      AppleNotificationCenterServiceClient ancsClient;
       AlertNotificationService anService;
       AlertNotificationClient alertNotificationClient;
       CurrentTimeService currentTimeService;
@@ -110,9 +112,18 @@ namespace Pinetime {
       uint8_t fastAdvCount = 0;
       uint8_t bondId[16] = {0};
 
-      ble_uuid128_t dfuServiceUuid {
-        .u {.type = BLE_UUID_TYPE_128},
-        .value = {0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15, 0xDE, 0xEF, 0x12, 0x12, 0x30, 0x15, 0x00, 0x00}};
+      ble_uuid128_t dfuServiceUuid =
+        {
+          .u {.type = BLE_UUID_TYPE_128},
+          .value = {0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15, 0xDE, 0xEF, 0x12, 0x12, 0x30, 0x15, 0x00, 0x00}
+        };
+
+      ble_uuid128_t ancsServiceUuid = {.u {.type = BLE_UUID_TYPE_128},
+             .value = {0xD0, 0x00, 0x2D, 0x12, 0x1E, 0x4B, 0x0F, 0xA4,
+                       0x99, 0x4E, 0xCE, 0xB5, 0x31, 0xF4, 0x05, 0x79}
+            }; // ANCS
+      ble_uuid16_t ancsServiceUuid16 = {.u {.type = BLE_UUID_TYPE_16},
+      .value = 0xF431};
     };
 
     static NimbleController* nptr;
