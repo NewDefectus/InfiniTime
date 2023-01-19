@@ -22,7 +22,7 @@ namespace Pinetime {
         HighProriotyAlert,
         InstantMessage
       };
-      static constexpr uint8_t MessageSize {100};
+      static constexpr uint8_t MessageSize {200};
 
       struct Notification {
         using Id = uint8_t;
@@ -66,7 +66,7 @@ namespace Pinetime {
       Notification& At(Notification::Idx idx);
       void DismissIdx(Notification::Idx idx);
 
-      static constexpr uint8_t TotalNbNotifications = 5;
+      static constexpr uint8_t TotalNbNotifications = 10;
       std::array<Notification, TotalNbNotifications> notifications;
       size_t beginIdx = TotalNbNotifications - 1; // index of the newest notification
       size_t size = 0;                            // number of valid notifications in buffer
