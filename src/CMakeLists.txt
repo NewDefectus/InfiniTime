@@ -424,6 +424,7 @@ list(APPEND SOURCE_FILES
         displayapp/screens/WatchFaceDigital.cpp
         displayapp/screens/WatchFaceInfineat.cpp
         displayapp/screens/WatchFaceTerminal.cpp
+        displayapp/screens/WatchFaceUnix.cpp
         displayapp/screens/WatchFacePineTimeStyle.cpp
         displayapp/screens/WatchFaceCasioStyleG7710.cpp
 
@@ -462,6 +463,7 @@ list(APPEND SOURCE_FILES
         components/ble/ServiceDiscovery.cpp
         components/ble/HeartRateService.cpp
         components/ble/MotionService.cpp
+        components/ble/AppleNotificationCenterServiceClient.cpp
         components/firmwarevalidator/FirmwareValidator.cpp
         components/motor/MotorController.cpp
         components/settings/Settings.cpp
@@ -519,6 +521,7 @@ list(APPEND RECOVERY_SOURCE_FILES
         components/ble/DeviceInformationService.cpp
         components/ble/CurrentTimeClient.cpp
         components/ble/AlertNotificationClient.cpp
+        components/ble/AppleNotificationCenterServiceClient.cpp
         components/ble/DfuService.cpp
         components/ble/CurrentTimeService.cpp
         components/ble/AlertNotificationService.cpp
@@ -640,6 +643,7 @@ set(INCLUDE_FILES
         components/ble/DeviceInformationService.h
         components/ble/CurrentTimeClient.h
         components/ble/AlertNotificationClient.h
+        components/ble/AppleNotificationCenterServiceClient.h
         components/ble/DfuService.h
         components/firmwarevalidator/FirmwareValidator.h
         components/ble/BatteryInformationService.h
