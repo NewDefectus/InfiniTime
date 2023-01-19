@@ -71,6 +71,12 @@ struct ble_hs_adv_fields {
 
     /*** 0x0d - Slave connection interval range. */
     const uint8_t *slave_itvl_range;
+    
+    /*** 0x14 - Soliciting 128-bit UUID. */
+    const ble_uuid16_t * sol_uuid16;
+
+    /*** 0x15 - Soliciting 128-bit UUID. */
+    const ble_uuid128_t * sol_uuid128;
 
     /*** 0x16 - Service data - 16-bit UUID. */
     const uint8_t *svc_data_uuid16;
