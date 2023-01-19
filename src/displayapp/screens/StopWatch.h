@@ -32,11 +32,13 @@ namespace Pinetime::Applications::Screens {
     void Start();
     void Pause();
 
+    void RefreshOnce();
+    void StyleRunning();
+    void StyleHalt();
+    void UpdateDisplay();
+
   private:
     Pinetime::System::SystemTask& systemTask;
-    States currentState = States::Init;
-    TickType_t startTime;
-    TickType_t oldTimeElapsed = 0;
     static constexpr int maxLapCount = 20;
     TickType_t laps[maxLapCount + 1];
     static constexpr int displayedLaps = 2;

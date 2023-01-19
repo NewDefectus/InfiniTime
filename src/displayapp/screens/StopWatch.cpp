@@ -5,6 +5,10 @@
 
 using namespace Pinetime::Applications::Screens;
 
+static States currentState = States::Init;
+static TickType_t startTime = 0;
+static TickType_t oldTimeElapsed = 0;
+
 namespace {
   TimeSeparated_t convertTicksToTimeSegments(const TickType_t timeElapsed) {
     // Centiseconds
@@ -65,6 +69,7 @@ StopWatch::StopWatch(DisplayApp* app, System::SystemTask& systemTask) : Screen(a
   lv_label_set_text_static(lapText, "");
 
   taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_MID, this);
+  UpdateDisplay();
 }
 
 StopWatch::~StopWatch() {
@@ -88,23 +93,25 @@ void StopWatch::Reset() {
   lv_obj_set_state(txtStopLap, LV_STATE_DISABLED);
 }
 
-void StopWatch::Start() {
+void StopWatch::StyleRunning() {
   lv_obj_set_state(btnStopLap, LV_STATE_DEFAULT);
   lv_obj_set_state(txtStopLap, LV_STATE_DEFAULT);
   lv_obj_set_style_local_text_color(time, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, Colors::highlight);
   lv_obj_set_style_local_text_color(msecTime, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, Colors::highlight);
   lv_label_set_text_static(txtPlayPause, Symbols::pause);
   lv_label_set_text_static(txtStopLap, Symbols::lapsFlag);
-  startTime = xTaskGetTickCount();
-  currentState = States::Running;
   systemTask.PushMessage(Pinetime::System::Messages::DisableSleeping);
 }
 
-void StopWatch::Pause() {
-  startTime = 0;
-  // Store the current time elapsed in cache
-  oldTimeElapsed = laps[lapsDone];
-  currentState = States::Halted;
+void StopWatch::Start() {
+  StyleRunning();
+  startTime = xTaskGetTickCount();
+  currentState = States::Running;
+}
+
+void StopWatch::StyleHalt() {
+  lv_obj_set_state(btnStopLap, LV_STATE_DEFAULT);
+  lv_obj_set_state(txtStopLap, LV_STATE_DEFAULT);
   lv_label_set_text_static(txtPlayPause, Symbols::play);
   lv_label_set_text_static(txtStopLap, Symbols::stop);
   lv_obj_set_style_local_text_color(time, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_YELLOW);
@@ -112,13 +119,29 @@ void StopWatch::Pause() {
   systemTask.PushMessage(Pinetime::System::Messages::EnableSleeping);
 }
 
-void StopWatch::Refresh() {
+void StopWatch::Pause() {
+  startTime = 0;
+  // Store the current time elapsed in cache
+  oldTimeElapsed = laps[lapsDone];
+  currentState = States::Halted;
+  StopWatch::StyleHalt();
+}
+
+void StopWatch::RefreshOnce() {
   if (currentState == States::Running) {
     laps[lapsDone] = oldTimeElapsed + xTaskGetTickCount() - startTime;
+  } else {
+    laps[lapsDone] = oldTimeElapsed;
+  }
+  TimeSeparated_t currentTimeSeparated = convertTicksToTimeSegments(laps[lapsDone]);
 
-    TimeSeparated_t currentTimeSeparated = convertTicksToTimeSegments(laps[lapsDone]);
-    lv_label_set_text_fmt(time, "%02d:%02d", currentTimeSeparated.mins, currentTimeSeparated.secs);
-    lv_label_set_text_fmt(msecTime, "%02d", currentTimeSeparated.hundredths);
+  lv_label_set_text_fmt(time, "%02d:%02d", currentTimeSeparated.mins, currentTimeSeparated.secs);
+  lv_label_set_text_fmt(msecTime, "%02d", currentTimeSeparated.hundredths);
+}
+
+void StopWatch::Refresh() {
+  if (currentState == States::Running) {
+    StopWatch::RefreshOnce();
   }
 }
 
@@ -135,6 +158,15 @@ void StopWatch::playPauseBtnEventHandler(lv_event_t event) {
   }
 }
 
+void StopWatch::UpdateDisplay() {
+  if (currentState == States::Running) {
+    StyleRunning();
+  } else if (currentState == States::Halted) {
+    StyleHalt();
+  }
+  RefreshOnce();
+}
+
 void StopWatch::stopLapBtnEventHandler(lv_event_t event) {
   if (event != LV_EVENT_CLICKED) {
     return;
@@ -149,8 +181,8 @@ void StopWatch::stopLapBtnEventHandler(lv_event_t event) {
         continue;
       }
       TimeSeparated_t times = convertTicksToTimeSegments(laps[i]);
-      char buffer[16];
-      sprintf(buffer, "#%2d   %2d:%02d.%02d\n", i + 1, times.mins, times.secs, times.hundredths);
+      char buffer[16];  // CR: wtf???
+      (void)snprintf(buffer, 16, "#%2d   %2d:%02d.%02d\n", i + 1, times.mins, times.secs, times.hundredths);
       lv_label_ins_text(lapText, LV_LABEL_POS_LAST, buffer);
     }
   } else if (currentState == States::Halted) {
