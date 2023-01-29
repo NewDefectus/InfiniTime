@@ -306,7 +306,9 @@ void AppleNotificationCenterServiceClient::OnNotification(ble_gap_event* event) 
     if (packet.eventId == EventID::EventIDNotificationRemoved &&
         notificationStack.find(packet.notificationUid) != notificationStack.end()) {
         notificationStack.erase(packet.notificationUid);
-        return ;
+    }
+    if (packet.eventId != EventID::EventIDNotificationAdded) {
+      return ;
     }
     if (packet.eventFlags.EventFlagPreExisting)
     {
