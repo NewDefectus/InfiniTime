@@ -91,6 +91,17 @@ namespace Pinetime {
         AppAttributeIDDisplayName = 0,
       };
       
+      enum class ANCSNotificationState
+      {
+        Idle,
+        RequestedInfo,
+        StartedTitle,
+        FinishedField,
+        PreSubtitle,
+        StartedSubtitle,
+        StartedMessage,
+      };
+      
       using NSPacket = struct __attribute__((packed)) {
         EventID eventId;
         EventFlags eventFlags;
@@ -115,8 +126,9 @@ namespace Pinetime {
 
     private:
 
-      void NewDataPacket(ble_gap_event* event);
-      void ContinueDataPacket(ble_gap_event* event);
+      void NewDataPacket(size_t * offset);
+      bool ParseHeader(ble_gap_event* event, size_t * offset);
+      bool HandleFieldData(ble_gap_event* event, size_t * offset, uint16_t * length);
       void EndDataPacket();
       
       static constexpr ble_uuid128_t ancsUuid {.u {.type = BLE_UUID_TYPE_128},
@@ -143,7 +155,11 @@ namespace Pinetime {
       uint16_t ancsDataHandle = 0;
       uint16_t ancsSourceCCCDHandle = 0;
       uint16_t ancsDataCCCDHandle = 0;
-      uint16_t dataSizeLeft = 0;
+
+      uint16_t titleLength = 0;
+      uint16_t subtitleLength = 0;
+      uint16_t messageLength = 0;
+
       bool isDiscovered = false;
       Pinetime::System::SystemTask& systemTask;
       Pinetime::Controllers::NotificationManager& notificationManager;
@@ -158,6 +174,7 @@ namespace Pinetime {
       bool isEventInProgress = false;
       std::map<uint32_t, NotificationBuilder> notificationStack;
       NotificationManager::Notification currentNotif;
+      ANCSNotificationState currentState;
       size_t messageOffset;
     };
   }
