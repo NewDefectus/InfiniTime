@@ -11,6 +11,18 @@
       "format": "bin",
       "target_path": "/fonts/"
    },
+   "symbola": {
+      "sources": [
+         {
+            "file": "fonts/Symbola.ttf",
+            "range": "0x1F300-0x1F64F, 0x1F680-0x1F6FF"
+         }
+      ],
+      "bpp": 1,
+      "size": 20,
+      "format": "bin",
+      "target_path": "/fonts/"
+   },
    "bebas" : {
       "sources": [
          {

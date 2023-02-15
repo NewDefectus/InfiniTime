@@ -26,8 +26,8 @@ constexpr ble_uuid128_t AppleNotificationCenterServiceClient::ancsControlCharUui
 constexpr ble_uuid128_t AppleNotificationCenterServiceClient::ancsDataCharUuid;
 constexpr ble_uuid16_t  AppleNotificationCenterServiceClient::cccdUuid;
 
-constexpr uint16_t TitleLength = 30;
-constexpr uint16_t SubtitleLength = 50;
+constexpr uint16_t TitleLength = 50;
+constexpr uint16_t SubtitleLength = 30;
 constexpr uint16_t MessageLength = NotificationManager::MessageSize - TitleLength - SubtitleLength - 2; // -2 because of null byte for
 constexpr uint16_t MaxBufferSize = MAX(TitleLength, MAX(SubtitleLength, MessageLength));
 // others
@@ -207,12 +207,6 @@ int AppleNotificationCenterServiceClient::OnDescriptorDiscoveryEventCallback(uin
 void AppleNotificationCenterServiceClient::NewDataPacket(size_t * off) {
   *off = sizeof(uint8_t) + // command
          sizeof (uint32_t); // uid, ignore for now
-    
-  messageOffset = 0;
-  titleLength = 0;
-  subtitleLength = 0;
-  messageLength = 0;
-  currentNotif = NotificationManager::Notification{};
 }
 
 bool AppleNotificationCenterServiceClient::ParseHeader(ble_gap_event* event, size_t * off) {
@@ -234,17 +228,17 @@ bool AppleNotificationCenterServiceClient::ParseHeader(ble_gap_event* event, siz
   switch (static_cast<NotificationAttributeID>(fieldId)) {
     case NotificationAttributeID::NotificationAttributeIDTitle:
       currentState = ANCSNotificationState::StartedTitle;
-      titleLength = MIN(fieldLen, TitleLength);
+      currentData.titleLength = MIN(fieldLen, TitleLength);
       NOTIF_LOG("Title case - %d, %d = MIN(%d, %d)", fieldId, titleLength, fieldLen, TitleLength);
       break;
     case NotificationAttributeID::NotificationAttributeIDSubtitle:
       currentState = ANCSNotificationState::StartedSubtitle;
-      subtitleLength = MIN(fieldLen, SubtitleLength);
+      currentData.subtitleLength = MIN(fieldLen, SubtitleLength);
       NOTIF_LOG("Sub case - %d, %d = MIN(%d, %d)", fieldId, subtitleLength, fieldLen, SubtitleLength);
       break;
     case NotificationAttributeID::NotificationAttributeIDMessage:
       currentState = ANCSNotificationState::StartedMessage;
-      messageLength = MIN(fieldLen, MessageLength);
+      currentData.messageLength = MIN(fieldLen, MessageLength);
       NOTIF_LOG("Message case - %d, %d = MIN(%d, %d)", fieldId, messageLength, fieldLen, MessageLength);
       break;
     default:
@@ -267,24 +261,34 @@ bool AppleNotificationCenterServiceClient::HandleFieldData(ble_gap_event* event,
   }
   *off += availableToRead;
   *length -= availableToRead;
-  (void)snprintf(currentNotif.message.data() + messageOffset, availableToRead + 1, "%s", data);
-  messageOffset += availableToRead;
+  (void)snprintf(currentData.currentNotif.message.data() + currentData.messageOffset, availableToRead + 1, "%s", data);
+  currentData.messageOffset += availableToRead;
   
   return true;
 }
 
 void AppleNotificationCenterServiceClient::EndDataPacket() {
-  currentNotif.size = static_cast<uint8_t>(messageOffset + 1);
-  currentNotif.category = NotificationManager::Categories::SimpleAlert;
+  NotificationManager::Notification& currentNotif = currentData.currentNotif;
+  currentNotif.size = static_cast<uint8_t>(currentData.messageOffset + 1);
+  currentState = ANCSNotificationState::Idle;
+  
+  switch (currentData.packet.categoryId) {
+    case CategoryID::CategoryIDIncomingCall:
+      currentNotif.category = NotificationManager::Categories::IncomingCall;
+      break;
+    case CategoryID::CategoryIDMissedCall:
+      currentNotif.category = NotificationManager::Categories::MissedCall;
+      systemTask.PushMessage(System::Messages::StopRinging);
+      break;
+    default:
+      currentNotif.category = NotificationManager::Categories::SimpleAlert;
+      break;
+  }
   
   notificationManager.Push(std::move(currentNotif));
   // If this crashes it means you have too many friends, AAT
-  systemTask.PushMessage(System::Messages::OnNewNotification);
-  titleLength = 0;
-  subtitleLength = 0;
-  messageLength = 0;
-  messageOffset = 0;
-  currentState = ANCSNotificationState::Idle;
+  if (!currentData.packet.eventFlags.EventFlagSilent)
+    systemTask.PushMessage(System::Messages::OnNewNotification);
 }
 
 void AppleNotificationCenterServiceClient::OnNotification(ble_gap_event* event) {
@@ -321,6 +325,9 @@ void AppleNotificationCenterServiceClient::OnNotification(ble_gap_event* event) 
       EndDataPacket();
     }
     
+    currentData = NotificationData {};
+    currentData.packet = packet;
+    
     CPCommandBuilder builder{};
     builder.push(CommandID::CommandIDGetNotificationAttributes);
     builder.push(packet.notificationUid);
@@ -333,13 +340,9 @@ void AppleNotificationCenterServiceClient::OnNotification(ble_gap_event* event) 
     
     ble_gattc_write_flat(event->notify_rx.conn_handle, ancsControlHandle, builder.data(), builder.size(), nullptr, nullptr);
     currentState = ANCSNotificationState::RequestedInfo;
-    // 1. Fix instagram notifications messing up others (?)
-    // 2. Support hebrew (V)
-    // 2.5. emoji support?
-    // 3. Cleanup code (maybe check uid for failsafe?) (V?)
-    // 4. Handle calls
-    // 5. Battery
-    // 6. Music
+    // TODO: Handle calls
+    // TODO: Move emojis to SPIFS
+    // TODO: add an app for turning DFU to SPIFS update
     
 //    if(packet.categoryId == CategoryID::CategoryIDIncomingCall)
 //    {
@@ -360,15 +363,15 @@ void AppleNotificationCenterServiceClient::OnNotification(ble_gap_event* event) 
           currentState = ANCSNotificationState::FinishedField;
           break;
         case ANCSNotificationState::StartedTitle:
-          if (!HandleFieldData(event, &offset, &titleLength)) {
+          if (!HandleFieldData(event, &offset, &currentData.titleLength)) {
             return ;
           }
-          if (0 != titleLength) {
+          if (0 != currentData.titleLength) {
             NOTIF_LOG("Need more data for title - %d", titleLength);
             break ;
           }
           currentState = ANCSNotificationState::FinishedField;
-          messageOffset += 1;
+          currentData.messageOffset += 1;
           break ;
         case ANCSNotificationState::FinishedField:
           // TODO(user): edge case when ID and length are split between 2 packets
@@ -378,28 +381,28 @@ void AppleNotificationCenterServiceClient::OnNotification(ble_gap_event* event) 
           }
           break;
         case ANCSNotificationState::PreSubtitle:
-          if (subtitleLength == 0) {
+          if (currentData.subtitleLength == 0) {
             currentState = ANCSNotificationState::FinishedField;
             break ;
           }
           currentState = ANCSNotificationState::StartedSubtitle;
           // FALLTHROUGH
         case ANCSNotificationState::StartedSubtitle:
-          if (!HandleFieldData(event, &offset, &subtitleLength)) {
+          if (!HandleFieldData(event, &offset, &currentData.subtitleLength)) {
             return ;
           }
-          if (0 != subtitleLength) {
+          if (0 != currentData.subtitleLength) {
             break ;
           }
           currentState = ANCSNotificationState::FinishedField;
-          *(currentNotif.message.data() + messageOffset) = '\n';
-          messageOffset += 1;
+          *(currentData.currentNotif.message.data() + currentData.messageOffset) = '\n';
+          currentData.messageOffset += 1;
           break ;
         case ANCSNotificationState::StartedMessage:
-          if (!HandleFieldData(event, &offset, &messageLength)) {
+          if (!HandleFieldData(event, &offset, &currentData.messageLength)) {
             return ;
           }
-          if (0 != messageLength) {
+          if (0 != currentData.messageLength) {
             NOTIF_LOG("Need more data for message - %d", messageLength);
             break ;
           }
@@ -417,9 +420,6 @@ void AppleNotificationCenterServiceClient::Reset() {
   ancsSourceHandle = 0;
   ancsControlHandle = 0;
   ancsDataHandle = 0;
-  titleLength = 0;
-  subtitleLength = 0;
-  messageLength = 0;
   ancsSourceCCCDHandle = 0;
   ancsDataCCCDHandle = 0;
   isDiscovered = false;

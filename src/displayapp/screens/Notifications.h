@@ -23,6 +23,7 @@ namespace Pinetime {
                                Pinetime::Controllers::NotificationManager& notificationManager,
                                Pinetime::Controllers::AlertNotificationService& alertNotificationService,
                                Pinetime::Controllers::MotorController& motorController,
+                               Pinetime::Controllers::FS& filesystem,
                                System::SystemTask& systemTask,
                                Modes mode);
         ~Notifications() override;
@@ -34,14 +35,16 @@ namespace Pinetime {
         class NotificationItem {
         public:
           NotificationItem(Pinetime::Controllers::AlertNotificationService& alertNotificationService,
-                           Pinetime::Controllers::MotorController& motorController);
+                           Pinetime::Controllers::MotorController& motorController,
+                           Pinetime::Controllers::FS& filesystem);
           NotificationItem(const char* title,
                            const char* msg,
                            uint8_t notifNr,
                            Controllers::NotificationManager::Categories,
                            uint8_t notifNb,
                            Pinetime::Controllers::AlertNotificationService& alertNotificationService,
-                           Pinetime::Controllers::MotorController& motorController);
+                           Pinetime::Controllers::MotorController& motorController,
+                           Pinetime::Controllers::FS& filesystem);
           ~NotificationItem();
           bool IsRunning() const {
             return running;
@@ -67,6 +70,7 @@ namespace Pinetime {
         Pinetime::Controllers::NotificationManager& notificationManager;
         Pinetime::Controllers::AlertNotificationService& alertNotificationService;
         Pinetime::Controllers::MotorController& motorController;
+        Pinetime::Controllers::FS& filesystem;
         System::SystemTask& systemTask;
         Modes mode = Modes::Normal;
         std::unique_ptr<NotificationItem> currentItem;

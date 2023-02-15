@@ -14,12 +14,14 @@ Notifications::Notifications(DisplayApp* app,
                              Pinetime::Controllers::NotificationManager& notificationManager,
                              Pinetime::Controllers::AlertNotificationService& alertNotificationService,
                              Pinetime::Controllers::MotorController& motorController,
+                             Pinetime::Controllers::FS& filesystem,
                              System::SystemTask& systemTask,
                              Modes mode)
   : Screen(app),
     notificationManager {notificationManager},
     alertNotificationService {alertNotificationService},
     motorController {motorController},
+    filesystem {filesystem},
     systemTask {systemTask},
     mode {mode} {
 
@@ -33,10 +35,11 @@ Notifications::Notifications(DisplayApp* app,
                                                      notification.category,
                                                      notificationManager.NbNotifications(),
                                                      alertNotificationService,
-                                                     motorController);
+                                                     motorController,
+                                                     filesystem);
     validDisplay = true;
   } else {
-    currentItem = std::make_unique<NotificationItem>(alertNotificationService, motorController);
+    currentItem = std::make_unique<NotificationItem>(alertNotificationService, motorController, filesystem);
     validDisplay = false;
   }
   if (mode == Modes::Preview) {
@@ -108,9 +111,10 @@ void Notifications::Refresh() {
                                                        notification.category,
                                                        notificationManager.NbNotifications(),
                                                        alertNotificationService,
-                                                       motorController);
+                                                       motorController,
+                                                       filesystem);
     } else {
-      currentItem = std::make_unique<NotificationItem>(alertNotificationService, motorController);
+      currentItem = std::make_unique<NotificationItem>(alertNotificationService, motorController, filesystem);
     }
   }
 
@@ -189,7 +193,8 @@ bool Notifications::OnTouchEvent(Pinetime::Applications::TouchEvents event) {
                                                        previousNotification.category,
                                                        notificationManager.NbNotifications(),
                                                        alertNotificationService,
-                                                       motorController);
+                                                       motorController,
+                                                       filesystem);
     }
       return true;
     case Pinetime::Applications::TouchEvents::SwipeUp: {
@@ -216,7 +221,8 @@ bool Notifications::OnTouchEvent(Pinetime::Applications::TouchEvents event) {
                                                        nextNotification.category,
                                                        notificationManager.NbNotifications(),
                                                        alertNotificationService,
-                                                       motorController);
+                                                       motorController,
+                                                       filesystem);
     }
       return true;
     default:
@@ -232,14 +238,16 @@ namespace {
 }
 
 Notifications::NotificationItem::NotificationItem(Pinetime::Controllers::AlertNotificationService& alertNotificationService,
-                                                  Pinetime::Controllers::MotorController& motorController)
+                                                  Pinetime::Controllers::MotorController& motorController,
+                                                  Pinetime::Controllers::FS& filesystem)
   : NotificationItem("Notification",
                      "No notification to display",
                      0,
                      Controllers::NotificationManager::Categories::Unknown,
                      0,
                      alertNotificationService,
-                     motorController) {
+                     motorController,
+                     filesystem) {
 }
 
 Notifications::NotificationItem::NotificationItem(const char* title,
@@ -248,8 +256,10 @@ Notifications::NotificationItem::NotificationItem(const char* title,
                                                   Controllers::NotificationManager::Categories category,
                                                   uint8_t notifNb,
                                                   Pinetime::Controllers::AlertNotificationService& alertNotificationService,
-                                                  Pinetime::Controllers::MotorController& motorController)
+                                                  Pinetime::Controllers::MotorController& motorController,
+                                                  Pinetime::Controllers::FS& filesystem)
   : alertNotificationService {alertNotificationService}, motorController {motorController} {
+  
   container = lv_cont_create(lv_scr_act(), nullptr);
   lv_obj_set_size(container, LV_HOR_RES, LV_VER_RES);
   lv_obj_set_style_local_bg_color(container, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);

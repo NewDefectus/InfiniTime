@@ -114,6 +114,14 @@ namespace Pinetime {
         NSPacket packet;
         NotificationManager::Notification notification;
       };
+      using NotificationData = struct {
+        NSPacket packet;
+        NotificationManager::Notification currentNotif;
+        uint16_t titleLength = 0;
+        uint16_t subtitleLength = 0;
+        uint16_t messageLength = 0;
+        size_t messageOffset = 0;
+      };
       
       bool OnDiscoveryEvent(uint16_t connectionHandle, const ble_gatt_error* error, const ble_gatt_svc* service);
       int OnNewAlertSubcribe(uint16_t connectionHandle, const ble_gatt_error* error, ble_gatt_attr* attribute);
@@ -156,9 +164,6 @@ namespace Pinetime {
       uint16_t ancsSourceCCCDHandle = 0;
       uint16_t ancsDataCCCDHandle = 0;
 
-      uint16_t titleLength = 0;
-      uint16_t subtitleLength = 0;
-      uint16_t messageLength = 0;
 
       bool isDiscovered = false;
       Pinetime::System::SystemTask& systemTask;
@@ -171,11 +176,9 @@ namespace Pinetime {
       bool isSourceReady = false;
       bool isDataReady = false;
       bool isReady = false;
-      bool isEventInProgress = false;
       std::map<uint32_t, NotificationBuilder> notificationStack;
-      NotificationManager::Notification currentNotif;
       ANCSNotificationState currentState;
-      size_t messageOffset;
+      NotificationData currentData;
     };
   }
 }
