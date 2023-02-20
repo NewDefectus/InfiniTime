@@ -1,4 +1,5 @@
 #pragma once
+#ifdef _INCLUDE_EXTRAS
 
 #include "displayapp/apps/Apps.h"
 #include "displayapp/screens/Screen.h"
@@ -48,3 +49,4 @@ namespace Pinetime {
     };
   }
 }
+#endif

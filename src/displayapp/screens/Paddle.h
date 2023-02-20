@@ -1,4 +1,5 @@
 #pragma once
+#ifdef _INCLUDE_EXTRAS
 
 #include <lvgl/lvgl.h>
 #include <cstdint>
@@ -60,3 +61,4 @@ namespace Pinetime {
     };
   }
 }
+#endif
