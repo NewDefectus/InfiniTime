@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "displayapp/screens/Screen.h"
+#include "displayapp/screens/InfiniPaint.h"
 #include "displayapp/screens/ScreenList.h"
 #include "components/datetime/DateTimeController.h"
 #include "components/settings/Settings.h"
@@ -45,13 +46,14 @@ namespace Pinetime {
           {Symbols::shoe, Apps::Steps},
           {Symbols::heartBeat, Apps::HeartRate},
           {Symbols::music, Apps::Music},
-
+#ifdef _INCLUDE_EXTRAS
           {Symbols::paintbrush, Apps::Paint},
           {Symbols::paddle, Apps::Paddle},
           {"2", Apps::Twos},
+          {Symbols::map, Apps::Navigation},
+#endif
           {Symbols::chartLine, Apps::Motion},
           {Symbols::drum, Apps::Metronome},
-          {Symbols::map, Apps::Navigation},
         }};
         ScreenList<nScreens> screens;
       };

@@ -302,6 +302,10 @@ void DisplayApp::ReturnApp(Apps app, DisplayApp::FullRefreshDirections direction
 }
 
 void DisplayApp::LoadApp(Apps app, DisplayApp::FullRefreshDirections direction) {
+  if (app == Apps::NotificationsPreview && notificationSuppressor) {
+    return ;
+  }
+  
   touchHandler.CancelTap();
   ApplyBrightness();
 
@@ -311,6 +315,8 @@ void DisplayApp::LoadApp(Apps app, DisplayApp::FullRefreshDirections direction) 
   // default return to launcher
   ReturnApp(Apps::Launcher, FullRefreshDirections::Down, TouchEvents::SwipeDown);
 
+  notificationSuppressor = false;
+  
   switch (app) {
     case Apps::Launcher:
       currentScreen =
@@ -342,11 +348,13 @@ void DisplayApp::LoadApp(Apps app, DisplayApp::FullRefreshDirections direction) 
     case Apps::FirmwareUpdate:
       currentScreen = std::make_unique<Screens::FirmwareUpdate>(this, bleController);
       ReturnApp(Apps::Clock, FullRefreshDirections::Down, TouchEvents::None);
+      notificationSuppressor = true;
       break;
 
     case Apps::PassKey:
       currentScreen = std::make_unique<Screens::PassKey>(this, bleController.GetPairingKey());
       ReturnApp(Apps::Clock, FullRefreshDirections::Down, TouchEvents::SwipeDown);
+      notificationSuppressor = true;
       break;
 
     case Apps::Notifications:
@@ -453,6 +461,7 @@ void DisplayApp::LoadApp(Apps app, DisplayApp::FullRefreshDirections direction) 
     case Apps::StopWatch:
       currentScreen = std::make_unique<Screens::StopWatch>(this, *systemTask);
       break;
+#ifdef _INCLUDE_EXTRAS
     case Apps::Twos:
       currentScreen = std::make_unique<Screens::Twos>(this);
       break;
@@ -462,11 +471,12 @@ void DisplayApp::LoadApp(Apps app, DisplayApp::FullRefreshDirections direction) 
     case Apps::Paddle:
       currentScreen = std::make_unique<Screens::Paddle>(this, lvgl);
       break;
-    case Apps::Music:
-      currentScreen = std::make_unique<Screens::Music>(this, systemTask->nimble().music());
-      break;
     case Apps::Navigation:
       currentScreen = std::make_unique<Screens::Navigation>(this, systemTask->nimble().navigation());
+      break;
+#endif
+    case Apps::Music:
+      currentScreen = std::make_unique<Screens::Music>(this, systemTask->nimble().music());
       break;
     case Apps::HeartRate:
       currentScreen = std::make_unique<Screens::HeartRate>(this, heartRateController, *systemTask);
