@@ -4,6 +4,8 @@
 #include "systemtask/SystemTask.h"
 #include <nrf_log.h>
 #include <stdio.h>
+#include "BleUtils.h"
+
 
 using namespace Pinetime::Controllers;
 
@@ -20,7 +22,7 @@ using namespace Pinetime::Controllers;
 #define NOTIF_LOG(...) {}
 #endif
 
-constexpr ble_uuid128_t AppleNotificationCenterServiceClient::ancsUuid;
+constexpr ble_uuid128_t Pinetime::Controllers::AppleNotificationCenterServiceClient::ancsUuid;
 constexpr ble_uuid128_t AppleNotificationCenterServiceClient::ancsSourceCharUuid;
 constexpr ble_uuid128_t AppleNotificationCenterServiceClient::ancsControlCharUuid;
 constexpr ble_uuid128_t AppleNotificationCenterServiceClient::ancsDataCharUuid;
@@ -116,6 +118,7 @@ int AppleNotificationCenterServiceClient::OnNewAlertSubcribe(uint16_t connection
     if (error->status == BLE_HS_ATT_ERR(BLE_ATT_ERR_INSUFFICIENT_AUTHEN) || error->status == BLE_ATT_ERR_INSUFFICIENT_AUTHEN)
     {
       ble_gap_security_initiate(connectionHandle);
+      requireReset = true;
     }
   }
   if (isReady)
@@ -328,17 +331,49 @@ void AppleNotificationCenterServiceClient::OnNotification(ble_gap_event* event) 
     currentData = NotificationData {};
     currentData.packet = packet;
     
-    CPCommandBuilder builder{};
-    builder.push(CommandID::CommandIDGetNotificationAttributes);
-    builder.push(packet.notificationUid);
-    builder.push(NotificationAttributeID::NotificationAttributeIDTitle);
-    builder.push((TitleLength)); // max is 100, 25 for title (inc \0), 75 for content, at least for now
-//    builder.push(NotificationAttributeID::NotificationAttributeIDSubtitle);
-//    builder.push((SubtitleLength));
-    builder.push(NotificationAttributeID::NotificationAttributeIDMessage);
-    builder.push((MessageLength));
+//    CPCommandBuilder builder{};
+//    builder.push(CommandID::CommandIDGetNotificationAttributes);
+//    builder.push(packet.notificationUid);
+//    builder.push(NotificationAttributeID::NotificationAttributeIDTitle);
+//    builder.push((TitleLength)); // max is 100, 25 for title (inc \0), 75 for content, at least for now
+////    builder.push(NotificationAttributeID::NotificationAttributeIDSubtitle);
+////    builder.push((SubtitleLength));
+//    builder.push(NotificationAttributeID::NotificationAttributeIDMessage);
+//    builder.push((MessageLength));
     
-    ble_gattc_write_flat(event->notify_rx.conn_handle, ancsControlHandle, builder.data(), builder.size(), nullptr, nullptr);
+    union PacketBase {
+      struct __attribute__((packed)) {
+        CommandID cmd;
+        uint32_t notificationUid;
+        struct __attribute__((packed)) {
+          NotificationAttributeID attr;
+          uint16_t length;
+        } attrs[2];
+      } dataS;
+      uint8_t raw[sizeof(dataS)];
+    };
+    
+    static constexpr PacketBase tosend = {
+      .dataS = {
+        .cmd = CommandID::CommandIDGetNotificationAttributes,
+        .notificationUid = 0,
+        .attrs = {
+          {
+            .attr = NotificationAttributeID::NotificationAttributeIDTitle,
+            .length = TitleLength,
+          },
+          {
+            .attr = NotificationAttributeID::NotificationAttributeIDMessage,
+            .length = MessageLength,
+          }
+        }
+      }
+    };
+    
+    PacketBase tosendClone = tosend;
+    tosendClone.dataS.notificationUid = packet.notificationUid;
+    
+    ble_gattc_write_flat(event->notify_rx.conn_handle, ancsControlHandle, tosendClone.raw, sizeof(tosendClone), nullptr, nullptr);
     currentState = ANCSNotificationState::RequestedInfo;
     // TODO: Handle calls
     // TODO: Move emojis to SPIFS
@@ -430,39 +465,19 @@ void AppleNotificationCenterServiceClient::Reset() {
   isReady = false;
   isSourceReady = false;
   isDataReady = false;
+  requireReset = false;
   currentState = ANCSNotificationState::Idle;
   notificationStack.clear();
 }
+
+bool AppleNotificationCenterServiceClient::ShouldReset() {
+  return requireReset;
+}
+
 
 void AppleNotificationCenterServiceClient::Discover(uint16_t connectionHandle, std::function<void(uint16_t)> onServiceDiscovered) {
   NRF_LOG_INFO("[ANCS] Starting discovery");
   NOTIF_LOG("[ANCS] Starting discovery");
   this->onServiceDiscovered = onServiceDiscovered;
   ble_gattc_disc_svc_by_uuid(connectionHandle, &ancsUuid.u, OnDiscoveryEventCallback, this);
-}
-
-template <typename T> void CPCommandBuilder::push(T data) {
-  using Converter = union
-  {
-    T src;
-    uint8_t u8[sizeof(T)];
-  };
-  
-  uint16_t size = m_data.size();
-  if (size + sizeof(T) < size)
-  {
-    return ;
-  }
-  
-  Converter conv{data};
-  for (auto val : conv.u8)
-  {
-    m_data.push_back(val);
-  }
-}
-uint16_t CPCommandBuilder::size() {
-  return static_cast<uint16_t>(m_data.size());
-}
-unsigned char* CPCommandBuilder::data() {
-  return m_data.data();
 }

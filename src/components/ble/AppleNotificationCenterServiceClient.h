@@ -22,16 +22,6 @@ namespace Pinetime {
   namespace Controllers {
     class NotificationManager;
 
-    class CPCommandBuilder {
-    public:
-      template<typename T>
-      void push(T data);
-      uint16_t size();
-      unsigned char * data();
-    private:
-      std::vector<uint8_t> m_data;
-    };
-    
     class AppleNotificationCenterServiceClient : public BleClient {
     public:
       explicit AppleNotificationCenterServiceClient(Pinetime::System::SystemTask& systemTask,
@@ -130,19 +120,20 @@ namespace Pinetime {
                                                                                    const ble_gatt_dsc* descriptor);
       void OnNotification(ble_gap_event* event);
       void Reset();
+      bool ShouldReset();
       void Discover(uint16_t connectionHandle, std::function<void(uint16_t)> lambda) override;
 
+      static constexpr ble_uuid128_t ancsUuid {.u {.type = BLE_UUID_TYPE_128},
+                                               .value = {0xD0, 0x00, 0x2D, 0x12, 0x1E, 0x4B, 0x0F, 0xA4,
+                                                         0x99, 0x4E, 0xCE, 0xB5, 0x31, 0xF4, 0x05, 0x79}
+      };
+      
     private:
 
       void NewDataPacket(size_t * offset);
       bool ParseHeader(ble_gap_event* event, size_t * offset);
       bool HandleFieldData(ble_gap_event* event, size_t * offset, uint16_t * length);
       void EndDataPacket();
-      
-      static constexpr ble_uuid128_t ancsUuid {.u {.type = BLE_UUID_TYPE_128},
-                                               .value = {0xD0, 0x00, 0x2D, 0x12, 0x1E, 0x4B, 0x0F, 0xA4,
-                                                         0x99, 0x4E, 0xCE, 0xB5, 0x31, 0xF4, 0x05, 0x79}
-                                                 };
       
       static constexpr ble_uuid128_t ancsSourceCharUuid = {.u {.type = BLE_UUID_TYPE_128},
                                                            .value = {0xBD, 0x1D, 0xA2, 0x99, 0xE6, 0x25, 0x58, 0x8C,
@@ -164,7 +155,6 @@ namespace Pinetime {
       uint16_t ancsSourceCCCDHandle = 0;
       uint16_t ancsDataCCCDHandle = 0;
 
-
       bool isDiscovered = false;
       Pinetime::System::SystemTask& systemTask;
       Pinetime::Controllers::NotificationManager& notificationManager;
@@ -176,6 +166,7 @@ namespace Pinetime {
       bool isSourceReady = false;
       bool isDataReady = false;
       bool isReady = false;
+      bool requireReset = false;
       std::map<uint32_t, NotificationBuilder> notificationStack;
       ANCSNotificationState currentState;
       NotificationData currentData;

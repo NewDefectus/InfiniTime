@@ -470,6 +470,8 @@ list(APPEND SOURCE_FILES
         components/ble/HeartRateService.cpp
         components/ble/MotionService.cpp
         components/ble/AppleNotificationCenterServiceClient.cpp
+        components/ble/AppleMusicService.cpp
+        components/ble/BleUtils.cpp
         components/firmwarevalidator/FirmwareValidator.cpp
         components/motor/MotorController.cpp
         components/settings/Settings.cpp
@@ -497,7 +499,6 @@ list(APPEND SOURCE_FILES
         buttonhandler/ButtonHandler.cpp
         touchhandler/TouchHandler.cpp
         )
-
 list(APPEND RECOVERY_SOURCE_FILES
         BootloaderVersion.cpp
         logging/NrfLogger.cpp
@@ -526,6 +527,8 @@ list(APPEND RECOVERY_SOURCE_FILES
         components/ble/CurrentTimeClient.cpp
         components/ble/AlertNotificationClient.cpp
         components/ble/AppleNotificationCenterServiceClient.cpp
+        components/ble/BleUtils.cpp
+        components/ble/AppleMusicService.cpp
         components/ble/DfuService.cpp
         components/ble/CurrentTimeService.cpp
         components/ble/AlertNotificationService.cpp
@@ -633,6 +636,8 @@ set(INCLUDE_FILES
         drivers/Bma421_C/bma4.c
         drivers/Bma421_C/bma423.c
         components/battery/BatteryController.h
+        components/ble/IMusicService.h
+        components/ble/BleUtils.h
         components/ble/BleController.h
         components/ble/NotificationManager.h
         components/datetime/DateTimeController.h
@@ -646,6 +651,7 @@ set(INCLUDE_FILES
         components/ble/CurrentTimeClient.h
         components/ble/AlertNotificationClient.h
         components/ble/AppleNotificationCenterServiceClient.h
+        components/ble/AppleMusicService.h
         components/ble/DfuService.h
         components/firmwarevalidator/FirmwareValidator.h
         components/ble/BatteryInformationService.h
