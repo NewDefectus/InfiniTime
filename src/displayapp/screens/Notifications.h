@@ -93,7 +93,7 @@ namespace Pinetime {
 
         bool dismissingNotification = false;
 
-        lv_task_t* taskRefresh;
+        lv_task_t* taskRefresh = nullptr;
       };
     }
   }

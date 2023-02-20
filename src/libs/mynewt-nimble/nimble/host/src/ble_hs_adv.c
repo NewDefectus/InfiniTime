@@ -353,7 +353,7 @@ adv_set_fields(const struct ble_hs_adv_fields *adv_fields,
             return rc;
         }
     }
-    /*** 0x15 - Soliciting data - 16-bit UUID. */
+    /*** 0x14 - Soliciting data - 16-bit UUID. */
     if (adv_fields->sol_uuid16 != NULL) {
       rc = ble_hs_adv_set_array_uuid16(BLE_HS_ADV_TYPE_SOL_UUIDS16, 1,
                                        adv_fields->sol_uuid16, dst, &dst_len_local,
@@ -365,15 +365,11 @@ adv_set_fields(const struct ble_hs_adv_fields *adv_fields,
         return rc;
       }
     }
-    /*** 0x16 - Soliciting data - 128-bit UUID. */
-    if (adv_fields->sol_uuid128 != NULL) {
-      rc = ble_hs_adv_set_flat_mbuf(BLE_HS_ADV_TYPE_SOL_UUIDS128,
-                                    BLE_HS_ADV_SVC_DATA_UUID128_MIN_LEN,
-                                    adv_fields->sol_uuid128->value, dst,
-                                    &dst_len_local, max_len, om);
-      //      rc = ble_hs_adv_set_array_uuid128(type, adv_fields->sol_num_uuids128,
-//                                        adv_fields->uuids128, dst, &dst_len_local,
-//                                        max_len, om);
+    /*** 0x15 - Soliciting data - 128-bit UUID. */
+    if (adv_fields->sol_uuids128 != NULL && adv_fields->num_sol_uuids128) {
+      rc = ble_hs_adv_set_array_uuid128(BLE_HS_ADV_TYPE_SOL_UUIDS128, adv_fields->num_sol_uuids128,
+                                        adv_fields->uuids128, dst, &dst_len_local,
+                                        max_len, om);
       if (rc != 0) {
         return rc;
       }

@@ -60,12 +60,18 @@ Notifications::Notifications(DisplayApp* app,
     timeoutTickCountStart = xTaskGetTickCount();
     interacted = false;
   }
-
+  if (taskRefresh != nullptr)
+  {
+    lv_task_del(taskRefresh);
+  }
   taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_MID, this);
 }
 
 Notifications::~Notifications() {
-  lv_task_del(taskRefresh);
+  if (taskRefresh != nullptr) {
+    lv_task_del(taskRefresh);
+    taskRefresh = nullptr;
+  }
   // make sure we stop any vibrations before exiting
   motorController.StopRinging();
   systemTask.PushMessage(System::Messages::EnableSleeping);

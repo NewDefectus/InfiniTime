@@ -20,6 +20,7 @@
 #include <FreeRTOS.h>
 #include <lvgl/src/lv_core/lv_obj.h>
 #include <string>
+#include <components/ble/IMusicService.h>
 #include "displayapp/screens/Screen.h"
 #include "displayapp/apps/Apps.h"
 #include "displayapp/Controllers.h"
@@ -65,7 +66,7 @@ namespace Pinetime {
         /** For the spinning disc animation */
         bool frameB;
 
-        Pinetime::Controllers::MusicService& musicService;
+        Pinetime::Controllers::IMusicService& musicService;
 
         std::string artist;
         std::string album;

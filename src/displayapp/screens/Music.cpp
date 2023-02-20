@@ -20,6 +20,7 @@
 #include <cstdint>
 #include "displayapp/DisplayApp.h"
 #include "components/ble/MusicService.h"
+#include "components/ble/IMusicService.h"
 #include "displayapp/icons/music/disc.c"
 #include "displayapp/icons/music/disc_f_1.c"
 #include "displayapp/icons/music/disc_f_2.c"
@@ -138,7 +139,7 @@ Music::Music(Pinetime::Controllers::MusicService& music) : musicService(music) {
 
   frameB = false;
 
-  musicService.event(Controllers::MusicService::EVENT_MUSIC_OPEN);
+  musicService.event(Controllers::IMusicService::EVENT_MUSIC_OPEN);
 
   taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_MID, this);
 }
@@ -224,26 +225,26 @@ void Music::UpdateLength() {
 void Music::OnObjectEvent(lv_obj_t* obj, lv_event_t event) {
   if (event == LV_EVENT_CLICKED) {
     if (obj == btnVolDown) {
-      musicService.event(Controllers::MusicService::EVENT_MUSIC_VOLDOWN);
+      musicService.event(Controllers::IMusicService::EVENT_MUSIC_VOLDOWN);
     } else if (obj == btnVolUp) {
-      musicService.event(Controllers::MusicService::EVENT_MUSIC_VOLUP);
+      musicService.event(Controllers::IMusicService::EVENT_MUSIC_VOLUP);
     } else if (obj == btnPrev) {
-      musicService.event(Controllers::MusicService::EVENT_MUSIC_PREV);
+      musicService.event(Controllers::IMusicService::EVENT_MUSIC_PREV);
     } else if (obj == btnPlayPause) {
-      if (playing == Pinetime::Controllers::MusicService::MusicStatus::Playing) {
-        musicService.event(Controllers::MusicService::EVENT_MUSIC_PAUSE);
+      if (playing == Pinetime::Controllers::IMusicService::MusicStatus::Playing) {
+        musicService.event(Controllers::IMusicService::EVENT_MUSIC_PAUSE);
 
         // Let's assume it stops playing instantly
-        playing = Controllers::MusicService::NotPlaying;
+        playing = Controllers::IMusicService::NotPlaying;
       } else {
-        musicService.event(Controllers::MusicService::EVENT_MUSIC_PLAY);
+        musicService.event(Controllers::IMusicService::EVENT_MUSIC_PLAY);
 
         // Let's assume it starts playing instantly
         // TODO: In the future should check for BT connection for better UX
-        playing = Controllers::MusicService::Playing;
+        playing = Controllers::IMusicService::Playing;
       }
     } else if (obj == btnNext) {
-      musicService.event(Controllers::MusicService::EVENT_MUSIC_NEXT);
+      musicService.event(Controllers::IMusicService::EVENT_MUSIC_NEXT);
     }
   }
 }
@@ -269,11 +270,11 @@ bool Music::OnTouchEvent(Pinetime::Applications::TouchEvents event) {
       return false;
     }
     case TouchEvents::SwipeLeft: {
-      musicService.event(Controllers::MusicService::EVENT_MUSIC_NEXT);
+      musicService.event(Controllers::IMusicService::EVENT_MUSIC_NEXT);
       return true;
     }
     case TouchEvents::SwipeRight: {
-      musicService.event(Controllers::MusicService::EVENT_MUSIC_PREV);
+      musicService.event(Controllers::IMusicService::EVENT_MUSIC_PREV);
       return true;
     }
     default: {
