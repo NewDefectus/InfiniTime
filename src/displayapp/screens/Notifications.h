@@ -4,6 +4,7 @@
 #include <FreeRTOS.h>
 #include <cstdint>
 #include <memory>
+#include <components/ble/ICallService.h>
 #include "displayapp/screens/Screen.h"
 #include "components/ble/NotificationManager.h"
 #include "components/motor/MotorController.h"
@@ -21,7 +22,7 @@ namespace Pinetime {
         enum class Modes { Normal, Preview };
         explicit Notifications(DisplayApp* app,
                                Pinetime::Controllers::NotificationManager& notificationManager,
-                               Pinetime::Controllers::AlertNotificationService& alertNotificationService,
+                               Pinetime::Controllers::ICallService& alertNotificationService,
                                Pinetime::Controllers::MotorController& motorController,
                                Pinetime::Controllers::FS& filesystem,
                                System::SystemTask& systemTask,
@@ -34,7 +35,7 @@ namespace Pinetime {
 
         class NotificationItem {
         public:
-          NotificationItem(Pinetime::Controllers::AlertNotificationService& alertNotificationService,
+          NotificationItem(Pinetime::Controllers::ICallService& alertNotificationService,
                            Pinetime::Controllers::MotorController& motorController,
                            Pinetime::Controllers::FS& filesystem);
           NotificationItem(const char* title,
@@ -42,7 +43,7 @@ namespace Pinetime {
                            uint8_t notifNr,
                            Controllers::NotificationManager::Categories,
                            uint8_t notifNb,
-                           Pinetime::Controllers::AlertNotificationService& alertNotificationService,
+                           Pinetime::Controllers::ICallService& callService,
                            Pinetime::Controllers::MotorController& motorController,
                            Pinetime::Controllers::FS& filesystem);
           ~NotificationItem();
@@ -60,7 +61,8 @@ namespace Pinetime {
           lv_obj_t* label_accept;
           lv_obj_t* label_mute;
           lv_obj_t* label_reject;
-          Pinetime::Controllers::AlertNotificationService& alertNotificationService;
+//          Pinetime::Controllers::AlertNotificationService& alertNotificationService;
+          Pinetime::Controllers::ICallService& callService;
           Pinetime::Controllers::MotorController& motorController;
 
           bool running = true;
@@ -68,7 +70,8 @@ namespace Pinetime {
 
       private:
         Pinetime::Controllers::NotificationManager& notificationManager;
-        Pinetime::Controllers::AlertNotificationService& alertNotificationService;
+//        Pinetime::Controllers::AlertNotificationService& alertNotificationService;
+        Pinetime::Controllers::ICallService& callService;
         Pinetime::Controllers::MotorController& motorController;
         Pinetime::Controllers::FS& filesystem;
         System::SystemTask& systemTask;

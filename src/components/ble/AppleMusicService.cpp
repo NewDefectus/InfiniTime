@@ -8,6 +8,8 @@
 #include "BleUtils.h"
 #include "systemtask/SystemTask.h"
 
+#define DEBUGME __attribute__((optimize("O0")))
+
 //#define _NOTIFDBG
 //#define _AGGRESSIVEDBG
 #ifdef _NOTIFDBG
@@ -19,7 +21,7 @@
   m_notificationManager.Push(std::move(_notif)); \
 } while(0)
 #else
-  #define NOTIF_LOG(...) {}
+  #define NOTIF_LOG(...) {  }
 #endif
 #ifdef _AGGRESSIVEDBG
 #undef NRF_LOG_INFO
@@ -246,10 +248,13 @@ void AppleMusicService::OnNotification(ble_gap_event* event) {
   UpdatePacket packet{};
   int offset = 0;
   
+  
   os_mbuf_copydata(event->notify_rx.om, offset, sizeof(packet), &packet);
   offset += sizeof (packet);
-  int payloadLen = pktlen - offset;
-  char data[payloadLen + 1];
+  int payloadLen = MIN(pktlen - offset, 511);
+  
+  char data[512];
+  
   os_mbuf_copydata(event->notify_rx.om, offset, payloadLen, data);
   data[payloadLen] = 0;
   NOTIF_LOG("Got data: %s", data);

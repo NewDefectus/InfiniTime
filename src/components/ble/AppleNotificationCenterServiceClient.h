@@ -12,6 +12,7 @@
 #undef min
 #include "components/ble/BleClient.h"
 #include "NotificationManager.h"
+#include "ICallService.h"
 
 namespace Pinetime {
 
@@ -22,7 +23,7 @@ namespace Pinetime {
   namespace Controllers {
     class NotificationManager;
 
-    class AppleNotificationCenterServiceClient : public BleClient {
+    class AppleNotificationCenterServiceClient : public Pinetime::Controllers::ICallService, public BleClient {
     public:
       explicit AppleNotificationCenterServiceClient(Pinetime::System::SystemTask& systemTask,
                                        Pinetime::Controllers::NotificationManager& notificationManager);
@@ -120,9 +121,14 @@ namespace Pinetime {
                                                                                    const ble_gatt_dsc* descriptor);
       void OnNotification(ble_gap_event* event);
       void Reset();
+      bool Ready() const;
       bool ShouldReset();
       void Discover(uint16_t connectionHandle, std::function<void(uint16_t)> lambda) override;
 
+      void AcceptIncomingCall() override;
+      void RejectIncomingCall() override;
+      void MuteIncomingCall() override;
+      
       static constexpr ble_uuid128_t ancsUuid {.u {.type = BLE_UUID_TYPE_128},
                                                .value = {0xD0, 0x00, 0x2D, 0x12, 0x1E, 0x4B, 0x0F, 0xA4,
                                                          0x99, 0x4E, 0xCE, 0xB5, 0x31, 0xF4, 0x05, 0x79}

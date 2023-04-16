@@ -278,6 +278,13 @@ void AppleNotificationCenterServiceClient::EndDataPacket() {
   switch (currentData.packet.categoryId) {
     case CategoryID::CategoryIDIncomingCall:
       currentNotif.category = NotificationManager::Categories::IncomingCall;
+      // In this case we need to move the title to be the message itself
+//      char tempTitle[TitleLength + 1];
+//      (void)snprintf(tempTitle, currentData.titleLength + 1, "%s", currentNotif.message.data());
+//      (void)snprintf(currentNotif.message.data(), currentData.messageLength + 1, "%s",
+//                      currentNotif.message.data() + currentData.titleLength + 1);
+//      (void)snprintf(currentNotif.message.data() + currentData.messageLength + 1, currentData.titleLength + 1, "%s", tempTitle);
+      
       break;
     case CategoryID::CategoryIDMissedCall:
       currentNotif.category = NotificationManager::Categories::MissedCall;
@@ -480,4 +487,18 @@ void AppleNotificationCenterServiceClient::Discover(uint16_t connectionHandle, s
   NOTIF_LOG("[ANCS] Starting discovery");
   this->onServiceDiscovered = onServiceDiscovered;
   ble_gattc_disc_svc_by_uuid(connectionHandle, &ancsUuid.u, OnDiscoveryEventCallback, this);
+}
+
+bool AppleNotificationCenterServiceClient::Ready() const {
+  return isReady;
+}
+
+void AppleNotificationCenterServiceClient::AcceptIncomingCall() {
+
+}
+void AppleNotificationCenterServiceClient::RejectIncomingCall() {
+
+}
+void AppleNotificationCenterServiceClient::MuteIncomingCall() {
+
 }

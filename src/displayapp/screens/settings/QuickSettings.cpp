@@ -127,6 +127,13 @@ QuickSettings::~QuickSettings() {
   lv_style_reset(&btn_style);
   lv_task_del(taskUpdate);
   lv_obj_clean(lv_scr_act());
+  if (settingsController.GetNotificationStatus() == Controllers::Settings::Notification::Sleep) {
+    settingsController.SetBleRadioEnabled(false);
+    app->PushMessage(Pinetime::Applications::Display::Messages::BleRadioEnableToggle);
+  } else if (settingsController.GetNotificationStatus() == Controllers::Settings::Notification::On) {
+    settingsController.SetBleRadioEnabled(true);
+    app->PushMessage(Pinetime::Applications::Display::Messages::BleRadioEnableToggle);
+  }
   settingsController.SaveSettings();
 }
 
@@ -151,17 +158,10 @@ void QuickSettings::OnButtonEvent(lv_obj_t* object) {
       lv_label_set_text_static(btn3_lvl, Symbols::notificationsOff);
       lv_obj_set_state(btn3, static_cast<lv_state_t>(ButtonState::NotificationsOff));
     } else if (settingsController.GetNotificationStatus() == Controllers::Settings::Notification::Off) {
-      // PATCH: turn off BT on sleep
-      settingsController.SetBleRadioEnabled(false);
-      app->PushMessage(Pinetime::Applications::Display::Messages::BleRadioEnableToggle);
-      
       settingsController.SetNotificationStatus(Controllers::Settings::Notification::Sleep);
       lv_label_set_text_static(btn3_lvl, Symbols::sleep);
       lv_obj_set_state(btn3, static_cast<lv_state_t>(ButtonState::Sleep));
     } else {
-      settingsController.SetBleRadioEnabled(true);
-      app->PushMessage(Pinetime::Applications::Display::Messages::BleRadioEnableToggle);
-      
       settingsController.SetNotificationStatus(Controllers::Settings::Notification::On);
       lv_label_set_text_static(btn3_lvl, Symbols::notificationsOn);
       lv_obj_set_state(btn3, static_cast<lv_state_t>(ButtonState::NotificationsOn));

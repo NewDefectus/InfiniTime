@@ -4,6 +4,7 @@
 #define min // workaround: nimble's min/max macros conflict with libstdc++
 #define max
 #include <host/ble_gap.h>
+#include "ICallService.h"
 #undef max
 #undef min
 
@@ -19,16 +20,16 @@ namespace Pinetime {
   namespace Controllers {
     class NotificationManager;
 
-    class AlertNotificationService {
+    class AlertNotificationService : public Pinetime::Controllers::ICallService {
     public:
-      AlertNotificationService(Pinetime::System::SystemTask& systemTask, Pinetime::Controllers::NotificationManager& notificationManager);
+      AlertNotificationService(Pinetime::System::SystemTask& systemTask, Pinetime::Controllers::NotificationManager& notificationManager) ;
       void Init();
 
       int OnAlert(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt* ctxt);
 
-      void AcceptIncomingCall();
-      void RejectIncomingCall();
-      void MuteIncomingCall();
+      void AcceptIncomingCall() override;
+      void RejectIncomingCall() override;
+      void MuteIncomingCall() override;
 
       enum class IncomingCallResponses : uint8_t { Reject = 0x00, Answer = 0x01, Mute = 0x02 };
 

@@ -69,8 +69,12 @@ namespace Pinetime {
       Pinetime::Controllers::NavigationService& navigation() {
         return navService;
       };
-      Pinetime::Controllers::AlertNotificationService& alertService() {
-        return anService;
+      Pinetime::Controllers::ICallService& callService() {
+        if (ancsClient.Ready()) {
+          return ancsClient;
+        } else {
+          return anService;
+        }
       };
       Pinetime::Controllers::WeatherService& weather() {
         return weatherService;
