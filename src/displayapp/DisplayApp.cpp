@@ -465,7 +465,7 @@ void DisplayApp::LoadScreen(Apps app, DisplayApp::FullRefreshDirections directio
     case Apps::Notifications:
       currentScreen = std::make_unique<Screens::Notifications>(this,
                                                                notificationManager,
-                                                               systemTask->nimble().alertService(),
+                                                               systemTask->nimble().callService(),
                                                                motorController,
                                                                filesystem,
                                                                *systemTask,
@@ -474,7 +474,7 @@ void DisplayApp::LoadScreen(Apps app, DisplayApp::FullRefreshDirections directio
     case Apps::NotificationsPreview:
       currentScreen = std::make_unique<Screens::Notifications>(this,
                                                                notificationManager,
-                                                               systemTask->nimble().alertService(),
+                                                               systemTask->nimble().callService(),
                                                                motorController,
                                                                filesystem,
                                                                *systemTask,

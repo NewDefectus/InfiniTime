@@ -12,14 +12,14 @@ extern lv_font_t jetbrains_mono_bold_20;
 
 Notifications::Notifications(DisplayApp* app,
                              Pinetime::Controllers::NotificationManager& notificationManager,
-                             Pinetime::Controllers::AlertNotificationService& alertNotificationService,
+                             Pinetime::Controllers::ICallService& callService,
                              Pinetime::Controllers::MotorController& motorController,
                              Pinetime::Controllers::FS& filesystem,
                              System::SystemTask& systemTask,
                              Modes mode)
   : app {app},
     notificationManager {notificationManager},
-    alertNotificationService {alertNotificationService},
+    callService {callService},
     motorController {motorController},
     filesystem {filesystem},
     systemTask {systemTask},
@@ -34,12 +34,12 @@ Notifications::Notifications(DisplayApp* app,
                                                      1,
                                                      notification.category,
                                                      notificationManager.NbNotifications(),
-                                                     alertNotificationService,
+                                                     callService,
                                                      motorController,
                                                      filesystem);
     validDisplay = true;
   } else {
-    currentItem = std::make_unique<NotificationItem>(alertNotificationService, motorController, filesystem);
+    currentItem = std::make_unique<NotificationItem>(callService, motorController, filesystem);
     validDisplay = false;
   }
   if (mode == Modes::Preview) {
@@ -119,11 +119,11 @@ void Notifications::Refresh() {
                                                        currentIdx + 1,
                                                        notification.category,
                                                        notificationManager.NbNotifications(),
-                                                       alertNotificationService,
+                                                       callService,
                                                        motorController,
                                                        filesystem);
     } else {
-      currentItem = std::make_unique<NotificationItem>(alertNotificationService, motorController, filesystem);
+      currentItem = std::make_unique<NotificationItem>(callService, motorController, filesystem);
     }
   }
 
@@ -211,7 +211,7 @@ bool Notifications::OnTouchEvent(Pinetime::Applications::TouchEvents event) {
                                                        currentIdx + 1,
                                                        previousNotification.category,
                                                        notificationManager.NbNotifications(),
-                                                       alertNotificationService,
+                                                       callService,
                                                        motorController,
                                                        filesystem);
     }
@@ -239,7 +239,7 @@ bool Notifications::OnTouchEvent(Pinetime::Applications::TouchEvents event) {
                                                        currentIdx + 1,
                                                        nextNotification.category,
                                                        notificationManager.NbNotifications(),
-                                                       alertNotificationService,
+                                                       callService,
                                                        motorController,
                                                        filesystem);
     }
@@ -256,7 +256,7 @@ namespace {
   }
 }
 
-Notifications::NotificationItem::NotificationItem(Pinetime::Controllers::AlertNotificationService& alertNotificationService,
+Notifications::NotificationItem::NotificationItem(Pinetime::Controllers::ICallService& callService,
                                                   Pinetime::Controllers::MotorController& motorController,
                                                   Pinetime::Controllers::FS& filesystem)
   : NotificationItem("Notification",
@@ -264,7 +264,7 @@ Notifications::NotificationItem::NotificationItem(Pinetime::Controllers::AlertNo
                      0,
                      Controllers::NotificationManager::Categories::Unknown,
                      0,
-                     alertNotificationService,
+                     callService,
                      motorController,
                      filesystem) {
 }
@@ -274,10 +274,10 @@ Notifications::NotificationItem::NotificationItem(const char* title,
                                                   uint8_t notifNr,
                                                   Controllers::NotificationManager::Categories category,
                                                   uint8_t notifNb,
-                                                  Pinetime::Controllers::AlertNotificationService& alertNotificationService,
+                                                  Pinetime::Controllers::ICallService& callService,
                                                   Pinetime::Controllers::MotorController& motorController,
                                                   Pinetime::Controllers::FS& filesystem)
-  : alertNotificationService {alertNotificationService}, motorController {motorController} {
+  : callService {callService}, motorController {motorController} {
   
   container = lv_cont_create(lv_scr_act(), nullptr);
   lv_obj_set_size(container, LV_HOR_RES, LV_VER_RES);
@@ -375,11 +375,11 @@ void Notifications::NotificationItem::OnCallButtonEvent(lv_obj_t* obj, lv_event_
   motorController.StopRinging();
 
   if (obj == bt_accept) {
-    alertNotificationService.AcceptIncomingCall();
+    callService.AcceptIncomingCall();
   } else if (obj == bt_reject) {
-    alertNotificationService.RejectIncomingCall();
+    callService.RejectIncomingCall();
   } else if (obj == bt_mute) {
-    alertNotificationService.MuteIncomingCall();
+    callService.MuteIncomingCall();
   }
 
   running = false;
