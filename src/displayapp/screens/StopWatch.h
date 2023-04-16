@@ -37,6 +37,12 @@ namespace Pinetime::Applications::Screens {
     void Start();
     void Pause();
 
+    void RefreshOnce();
+    void StyleRunning();
+    void StyleHalt();
+    void UpdateDisplay();
+
+  private:
     Pinetime::System::SystemTask& systemTask;
     States currentState = States::Init;
     TickType_t startTime;

@@ -1,4 +1,5 @@
 #include "displayapp/screens/Paddle.h"
+#ifdef _INCLUDE_EXTRAS
 #include "displayapp/DisplayApp.h"
 #include "displayapp/LittleVgl.h"
 
@@ -96,3 +97,4 @@ bool Paddle::OnTouchEvent(uint16_t /*x*/, uint16_t y) {
   paddlePos = y;
   return true;
 }
+#endif

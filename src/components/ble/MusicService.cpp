@@ -209,7 +209,7 @@ int Pinetime::Controllers::MusicService::getTrackLength() const {
   return trackLength;
 }
 
-void Pinetime::Controllers::MusicService::event(char event) {
+void Pinetime::Controllers::MusicService::event(MusicEvent event) {
   auto* om = ble_hs_mbuf_from_flat(&event, 1);
 
   uint16_t connectionHandle = nimble.connHandle();

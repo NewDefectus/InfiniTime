@@ -23,6 +23,7 @@
 #define max
 #include <host/ble_gap.h>
 #include <host/ble_uuid.h>
+#include "IMusicService.h"
 #undef max
 #undef min
 
@@ -30,39 +31,22 @@ namespace Pinetime {
   namespace Controllers {
     class NimbleController;
 
-    class MusicService {
+    class MusicService : public IMusicService {
     public:
       explicit MusicService(NimbleController& nimble);
 
       void Init();
 
-      int OnCommand(struct ble_gatt_access_ctxt* ctxt);
+      int OnCommand(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt* ctxt);
 
-      void event(char event);
-
-      std::string getArtist() const;
-
-      std::string getTrack() const;
-
-      std::string getAlbum() const;
-
-      int getProgress() const;
-
-      int getTrackLength() const;
-
-      float getPlaybackSpeed() const;
-
-      bool isPlaying() const;
-
-      static const char EVENT_MUSIC_OPEN = 0xe0;
-      static const char EVENT_MUSIC_PLAY = 0x00;
-      static const char EVENT_MUSIC_PAUSE = 0x01;
-      static const char EVENT_MUSIC_NEXT = 0x03;
-      static const char EVENT_MUSIC_PREV = 0x04;
-      static const char EVENT_MUSIC_VOLUP = 0x05;
-      static const char EVENT_MUSIC_VOLDOWN = 0x06;
-
-      enum MusicStatus { NotPlaying = 0x00, Playing = 0x01 };
+      void event(MusicEvent event) override;
+      std::string getArtist() const override;
+      std::string getTrack() const override;
+      std::string getAlbum() const override;
+      int getProgress() const override;
+      int getTrackLength() const override;
+      float getPlaybackSpeed() const override;
+      bool isPlaying() const override;
 
     private:
       struct ble_gatt_chr_def characteristicDefinition[14];

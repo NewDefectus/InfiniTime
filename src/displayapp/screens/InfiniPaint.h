@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef _INCLUDE_EXTRAS
 #include <lvgl/lvgl.h>
 #include <cstdint>
 #include <algorithm> // std::fill
@@ -37,3 +38,4 @@ namespace Pinetime {
     }
   }
 }
+#endif

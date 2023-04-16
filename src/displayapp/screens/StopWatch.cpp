@@ -5,6 +5,10 @@
 
 using namespace Pinetime::Applications::Screens;
 
+static States currentState = States::Init;
+static TickType_t startTime = 0;
+static TickType_t oldTimeElapsed = 0;
+
 namespace {
   TimeSeparated_t convertTicksToTimeSegments(const TickType_t timeElapsed) {
     // Centiseconds
@@ -74,6 +78,7 @@ StopWatch::StopWatch(System::SystemTask& systemTask) : systemTask {systemTask} {
   SetInterfaceStopped();
 
   taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_MID, this);
+  UpdateDisplay();
 }
 
 StopWatch::~StopWatch() {
@@ -128,8 +133,15 @@ void StopWatch::Start() {
   SetInterfaceRunning();
   startTime = xTaskGetTickCount();
   currentState = States::Running;
+  lv_obj_set_state(btnStopLap, LV_STATE_DEFAULT);
+  lv_obj_set_state(txtStopLap, LV_STATE_DEFAULT);
+  lv_obj_set_style_local_text_color(time, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, Colors::highlight);
+  lv_obj_set_style_local_text_color(msecTime, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, Colors::highlight);
+  lv_label_set_text_static(txtPlayPause, Symbols::pause);
+  lv_label_set_text_static(txtStopLap, Symbols::lapsFlag);
   systemTask.PushMessage(Pinetime::System::Messages::DisableSleeping);
 }
+
 
 void StopWatch::Pause() {
   SetInterfacePaused();
@@ -141,13 +153,21 @@ void StopWatch::Pause() {
   systemTask.PushMessage(Pinetime::System::Messages::EnableSleeping);
 }
 
-void StopWatch::Refresh() {
+void StopWatch::RefreshOnce() {
   if (currentState == States::Running) {
     laps[lapsDone] = oldTimeElapsed + xTaskGetTickCount() - startTime;
+  } else {
+    laps[lapsDone] = oldTimeElapsed;
+  }
+  TimeSeparated_t currentTimeSeparated = convertTicksToTimeSegments(laps[lapsDone]);
 
-    TimeSeparated_t currentTimeSeparated = convertTicksToTimeSegments(laps[lapsDone]);
-    lv_label_set_text_fmt(time, "%02d:%02d", currentTimeSeparated.mins, currentTimeSeparated.secs);
-    lv_label_set_text_fmt(msecTime, "%02d", currentTimeSeparated.hundredths);
+  lv_label_set_text_fmt(time, "%02d:%02d", currentTimeSeparated.mins, currentTimeSeparated.secs);
+  lv_label_set_text_fmt(msecTime, "%02d", currentTimeSeparated.hundredths);
+}
+
+void StopWatch::Refresh() {
+  if (currentState == States::Running) {
+    StopWatch::RefreshOnce();
   } else if (currentState == States::Halted) {
     const TickType_t currentTime = xTaskGetTickCount();
     if (currentTime > blinkTime) {

@@ -39,6 +39,8 @@ NimbleController::NimbleController(Pinetime::System::SystemTask& systemTask,
     dfuService {systemTask, bleController, spiNorFlash},
 
     currentTimeClient {dateTimeController},
+    ancsClient {systemTask, notificationManager},
+    amsClient {systemTask, notificationManager},
     anService {systemTask, notificationManager},
     alertNotificationClient {systemTask, notificationManager},
     currentTimeService {dateTimeController},
@@ -49,7 +51,7 @@ NimbleController::NimbleController(Pinetime::System::SystemTask& systemTask,
     heartRateService {*this, heartRateController},
     motionService {*this, motionController},
     fsService {systemTask, fs},
-    serviceDiscovery({&currentTimeClient, &alertNotificationClient}) {
+    serviceDiscovery({&currentTimeClient, &alertNotificationClient, &ancsClient, &amsClient}) {
 }
 
 void nimble_on_reset(int reason) {
@@ -81,6 +83,9 @@ void NimbleController::Init() {
   ble_hs_cfg.reset_cb = nimble_on_reset;
   ble_hs_cfg.sync_cb = nimble_on_sync;
   ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
+  ble_hs_cfg.sm_mitm = 1;
+  ble_hs_cfg.sm_io_cap = BLE_HS_IO_DISPLAY_ONLY;
+  ble_hs_cfg.sm_sc = 1;
 
   ble_svc_gap_init();
   ble_svc_gatt_init();
@@ -158,14 +163,30 @@ void NimbleController::StartAdvertising() {
   }
 
   fields.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
+  fields.name = reinterpret_cast<const uint8_t*>(deviceName);
+  fields.name_len = strlen(deviceName);
+  fields.name_is_complete = 1;
   fields.uuids128 = &dfuServiceUuid;
   fields.num_uuids128 = 1;
   fields.uuids128_is_complete = 1;
+//  fields.sol_uuids128 = &ancsServiceUuid;
+//  fields.num_sol_uuids128 = 1;
+  fields.appearance = 0x0086; // Wearable computer (watch size)
+  fields.appearance_is_present = 1;
   fields.tx_pwr_lvl = BLE_HS_ADV_TX_PWR_LVL_AUTO;
 
   rsp_fields.name = reinterpret_cast<const uint8_t*>(deviceName);
   rsp_fields.name_len = strlen(deviceName);
   rsp_fields.name_is_complete = 1;
+  rsp_fields.appearance = 0x0086; // Wearable computer (watch size)
+  rsp_fields.appearance_is_present = 1;
+//  rsp_fields.uuids128 = &dfuServiceUuid;
+//  rsp_fields.num_uuids128 = 1;
+//  rsp_fields.uuids128_is_complete = 1;
+//  rsp_fields.sol_uuids128 = solUuids;
+//  rsp_fields.num_sol_uuids128 = 2;
+  
+  
 
   int rc;
   rc = ble_gap_adv_set_fields(&fields);
@@ -197,6 +218,8 @@ int NimbleController::OnGAPEvent(ble_gap_event* event) {
         /* Connection failed; resume advertising. */
         currentTimeClient.Reset();
         alertNotificationClient.Reset();
+        ancsClient.Reset();
+        amsClient.Reset();
         connectionHandle = BLE_HS_CONN_HANDLE_NONE;
         bleController.Disconnect();
         fastAdvCount = 0;
@@ -220,6 +243,8 @@ int NimbleController::OnGAPEvent(ble_gap_event* event) {
 
       currentTimeClient.Reset();
       alertNotificationClient.Reset();
+      ancsClient.Reset();
+      amsClient.Reset();
       connectionHandle = BLE_HS_CONN_HANDLE_NONE;
       if (bleController.IsConnected()) {
         bleController.Disconnect();
@@ -254,8 +279,16 @@ int NimbleController::OnGAPEvent(ble_gap_event* event) {
         ble_gap_conn_find(event->enc_change.conn_handle, &desc);
         if (desc.sec_state.bonded) {
           PersistBond(desc);
+          // Update clients in case of security permission issues
+          if (ancsClient.ShouldReset()) {
+            currentTimeClient.Reset();
+            alertNotificationClient.Reset();
+            ancsClient.Reset();
+            amsClient.Reset();
+            NimbleController::StartDiscovery();
+          }
         }
-
+        
         NRF_LOG_INFO("new state: encrypted=%d authenticated=%d bonded=%d key_size=%d",
                      desc.sec_state.encrypted,
                      desc.sec_state.authenticated,
@@ -367,6 +400,8 @@ int NimbleController::OnGAPEvent(ble_gap_event* event) {
                    notifSize);
 
       alertNotificationClient.OnNotification(event);
+      ancsClient.OnNotification(event);
+      amsClient.OnNotification(event);
     } break;
 
     case BLE_GAP_EVENT_NOTIFY_TX:

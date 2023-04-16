@@ -23,6 +23,10 @@
 #include "components/ble/MotionService.h"
 #include "components/ble/weather/WeatherService.h"
 #include "components/fs/FS.h"
+#include "AppleNotificationCenterServiceClient.h"
+#include "AppleMusicService.h"
+
+
 
 namespace Pinetime {
   namespace Drivers {
@@ -55,16 +59,23 @@ namespace Pinetime {
       int OnGAPEvent(ble_gap_event* event);
       void StartDiscovery();
 
-      Pinetime::Controllers::MusicService& music() {
-        return musicService;
+      Pinetime::Controllers::IMusicService& music() {
+        if (amsClient.Ready()) {
+          return amsClient;
+        } else {
+          return musicService;
+        }
       };
 
       Pinetime::Controllers::NavigationService& navigation() {
         return navService;
       };
-
-      Pinetime::Controllers::AlertNotificationService& alertService() {
-        return anService;
+      Pinetime::Controllers::ICallService& callService() {
+        if (ancsClient.Ready()) {
+          return ancsClient;
+        } else {
+          return anService;
+        }
       };
 
       Pinetime::Controllers::WeatherService& weather() {
@@ -95,6 +106,8 @@ namespace Pinetime {
 
       DeviceInformationService deviceInformationService;
       CurrentTimeClient currentTimeClient;
+      AppleNotificationCenterServiceClient ancsClient;
+      AppleMusicService amsClient;
       AlertNotificationService anService;
       AlertNotificationClient alertNotificationClient;
       CurrentTimeService currentTimeService;
@@ -113,9 +126,21 @@ namespace Pinetime {
       uint8_t fastAdvCount = 0;
       uint8_t bondId[16] = {0};
 
-      ble_uuid128_t dfuServiceUuid {
-        .u {.type = BLE_UUID_TYPE_128},
-        .value = {0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15, 0xDE, 0xEF, 0x12, 0x12, 0x30, 0x15, 0x00, 0x00}};
+      ble_uuid128_t dfuServiceUuid =
+        {
+          .u {.type = BLE_UUID_TYPE_128},
+          .value = {0x23, 0xD1, 0xBC, 0xEA, 0x5F, 0x78, 0x23, 0x15, 0xDE, 0xEF, 0x12, 0x12, 0x30, 0x15, 0x00, 0x00}
+        };
+
+      ble_uuid128_t ancsServiceUuid = {.u {.type = BLE_UUID_TYPE_128},
+             .value = {0xD0, 0x00, 0x2D, 0x12, 0x1E, 0x4B, 0x0F, 0xA4,
+                       0x99, 0x4E, 0xCE, 0xB5, 0x31, 0xF4, 0x05, 0x79}
+            }; // ANCS
+      ble_uuid128_t amsUuid {.u {.type = BLE_UUID_TYPE_128}, // 89D3502B-0F36-433A-8EF4-C502AD55F8DC
+                                              .value = {0xDC, 0xF8, 0x55, 0xAD, 0x02, 0xC5, 0xF4, 0x8E,
+                                                        0x3A, 0x43, 0x36, 0x0F, 0x2B, 0x50, 0xD3, 0x89}
+      };
+      ble_uuid128_t solUuids[2] = {ancsServiceUuid, amsUuid};
     };
 
     static NimbleController* nptr;

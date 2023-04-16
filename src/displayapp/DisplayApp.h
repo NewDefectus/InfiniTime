@@ -123,6 +123,7 @@ namespace Pinetime {
       Apps nextApp = Apps::None;
       DisplayApp::FullRefreshDirections nextDirection;
       System::BootErrors bootError;
+      bool notificationSuppressor = false;
       void ApplyBrightness();
 
       static constexpr size_t returnAppStackSize = 10;

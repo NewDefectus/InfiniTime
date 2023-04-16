@@ -1,4 +1,6 @@
 #include "displayapp/screens/Twos.h"
+#ifdef _INCLUDE_EXTRAS
+
 #include <cstdio>
 #include <cstdlib>
 #include <lvgl/lvgl.h>
@@ -269,3 +271,4 @@ void Twos::updateGridDisplay() {
     }
   }
 }
+#endif
