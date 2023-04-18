@@ -75,10 +75,8 @@ StopWatch::StopWatch(System::SystemTask& systemTask) : systemTask {systemTask} {
   lv_obj_set_style_local_text_color(time, LV_LABEL_PART_MAIN, LV_STATE_DISABLED, Colors::lightGray);
   lv_obj_align(time, msecTime, LV_ALIGN_OUT_TOP_MID, 0, 0);
 
-  SetInterfaceStopped();
-
   taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_MID, this);
-  UpdateDisplay();
+  Refresh();
 }
 
 StopWatch::~StopWatch() {
@@ -218,3 +216,4 @@ bool StopWatch::OnButtonPushed() {
   }
   return false;
 }
+//TODO: debug

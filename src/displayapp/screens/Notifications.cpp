@@ -91,7 +91,7 @@ void Notifications::Refresh() {
 
   } else if (mode == Modes::Preview && dismissingNotification) {
     running = false;
-    currentItem = std::make_unique<NotificationItem>(alertNotificationService, motorController);
+    currentItem = std::make_unique<NotificationItem>(callService, motorController, filesystem);
 
   } else if (dismissingNotification) {
     dismissingNotification = false;
@@ -278,7 +278,7 @@ Notifications::NotificationItem::NotificationItem(const char* title,
                                                   Pinetime::Controllers::MotorController& motorController,
                                                   Pinetime::Controllers::FS& filesystem)
   : callService {callService}, motorController {motorController} {
-  
+  UNUSED_PARAMETER(filesystem);
   container = lv_cont_create(lv_scr_act(), nullptr);
   lv_obj_set_size(container, LV_HOR_RES, LV_VER_RES);
   lv_obj_set_style_local_bg_color(container, LV_CONT_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);

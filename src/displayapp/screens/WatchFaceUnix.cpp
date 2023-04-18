@@ -1,6 +1,6 @@
 #include "displayapp/screens/WatchFaceUnix.h"
 
-#include <date/date.h>
+#include "date/include/date/date.h"
 #include <lvgl/lvgl.h>
 #include <cstdio>
 #include "displayapp/screens/BatteryIcon.h"
@@ -18,15 +18,14 @@ using namespace Pinetime::Applications::Screens;
 // ARAM Bitmap Data
 static lv_img_dsc_t aram_logo;
 
-WatchFaceUnix::WatchFaceUnix(DisplayApp* app,
-                                   Controllers::DateTime& dateTimeController,
-                                   Controllers::Battery& batteryController,
-                                   Controllers::Ble& bleController,
+WatchFaceUnix::WatchFaceUnix(Controllers::DateTime& dateTimeController,
+                                   const Controllers::Battery& batteryController,
+                             const Controllers::Ble& bleController,
                                    Controllers::NotificationManager& notificationManager,
                                    Controllers::Settings& settingsController,
                                    Controllers::HeartRateController& heartRateController,
                                    Controllers::MotionController& motionController)
-  : Screen(app),
+  :
     currentDateTime {{}},
     dateTimeController {dateTimeController},
     batteryController {batteryController},
@@ -34,21 +33,10 @@ WatchFaceUnix::WatchFaceUnix(DisplayApp* app,
     notificationManager {notificationManager},
     settingsController {settingsController},
     heartRateController {heartRateController},
-    motionController {motionController} {
+    motionController {motionController},
+    statusIcons(batteryController, bleController) {
 
-  batteryIcon.Create(lv_scr_act());
-  batteryIcon.SetColor(LV_COLOR_WHITE);
-  lv_obj_align(batteryIcon.GetObject(), lv_scr_act(), LV_ALIGN_IN_TOP_RIGHT, 0, 0);
-
-  batteryPlug = lv_label_create(lv_scr_act(), nullptr);
-  lv_obj_set_style_local_text_color(batteryPlug, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xFF0000));
-  lv_label_set_text_static(batteryPlug, Symbols::plug);
-  lv_obj_align(batteryPlug, batteryIcon.GetObject(), LV_ALIGN_OUT_LEFT_MID, -5, 0);
-
-  bleIcon = lv_label_create(lv_scr_act(), nullptr);
-  lv_obj_set_style_local_text_color(bleIcon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x0082FC));
-  lv_label_set_text_static(bleIcon, Symbols::bluetooth);
-  lv_obj_align(bleIcon, batteryPlug, LV_ALIGN_OUT_LEFT_MID, -5, 0);
+  statusIcons.Create();
 
   notificationIcon = lv_label_create(lv_scr_act(), nullptr);
   lv_obj_set_style_local_text_color(notificationIcon, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x00FF00));
@@ -121,7 +109,7 @@ WatchFaceUnix::~WatchFaceUnix() {
 
 int WatchFaceUnix::timePointToTimestamp(std::chrono::system_clock::time_point& tp ) {
   using namespace date;
-  std::chrono::system_clock::time_point today = tp;
+//  std::chrono::system_clock::time_point today = tp;
 
   sys_days unix_epoch = day(1)/jan/1970;
   days days_since_epoch = floor<days>(tp) - unix_epoch;
@@ -133,25 +121,7 @@ int WatchFaceUnix::timePointToTimestamp(std::chrono::system_clock::time_point& t
 }
 
 void WatchFaceUnix::Refresh() {
-  isCharging = batteryController.IsCharging();
-  if (isCharging.IsUpdated()) {
-    lv_label_set_text_static(batteryPlug, BatteryIcon::GetPlugIcon(isCharging.Get()));
-  }
-
-  batteryPercentRemaining = batteryController.PercentRemaining();
-  if (batteryPercentRemaining.IsUpdated()) {
-    auto batteryPercent = batteryPercentRemaining.Get();
-    batteryIcon.SetBatteryPercentage(batteryPercent);
-  }
-
-  bleState = bleController.IsConnected();
-  bleRadioEnabled = bleController.IsRadioEnabled();
-  if (bleState.IsUpdated() || bleRadioEnabled.IsUpdated()) {
-    lv_label_set_text(bleIcon, BleIcon::GetIcon(bleState.Get()));
-  }
-  lv_obj_realign(batteryIcon.GetObject());
-  lv_obj_realign(batteryPlug);
-  lv_obj_realign(bleIcon);
+  statusIcons.Update();
 
   notificationState = notificationManager.AreNewNotificationsAvailable();
   if (notificationState.IsUpdated()) {
@@ -164,7 +134,7 @@ void WatchFaceUnix::Refresh() {
     auto newDateTime = currentDateTime.Get();
     auto dp = date::floor<date::days>(newDateTime);
     auto time = date::make_time(newDateTime - dp);
-    auto unixTime = timePointToTimestamp(newDateTime);
+    long unsigned int unixTime = timePointToTimestamp(newDateTime);
     auto yearMonthDay = date::year_month_day(dp);
 
     auto year = static_cast<int>(yearMonthDay.year());

@@ -3,8 +3,9 @@
 #include "displayapp/LittleVgl.h"
 #include "displayapp/InfiniTimeTheme.h"
 
-#include <algorithm> // std::fill
 #ifdef _INCLUDE_EXTRAS
+
+#include <algorithm> // std::fill
 using namespace Pinetime::Applications::Screens;
 
 InfiniPaint::InfiniPaint(Pinetime::Components::LittleVgl& lvgl, Pinetime::Controllers::MotorController& motor)

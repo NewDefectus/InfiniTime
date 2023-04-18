@@ -37,7 +37,7 @@ namespace Pinetime {
 
       void Init();
 
-      int OnCommand(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt* ctxt);
+      int OnCommand(struct ble_gatt_access_ctxt* ctxt);
 
       void event(MusicEvent event) override;
       std::string getArtist() const override;

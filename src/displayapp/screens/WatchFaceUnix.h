@@ -4,11 +4,13 @@
 #include <chrono>
 #include <cstdint>
 #include <memory>
+#include <displayapp/widgets/StatusIcons.h>
 #include "displayapp/screens/Screen.h"
 #include "components/datetime/DateTimeController.h"
 #include "components/ble/BleController.h"
 #include "displayapp/screens/WatchFaceUnixImage.h"
 #include "BatteryIcon.h"
+#include "utility/DirtyValue.h"
 
 namespace Pinetime {
   namespace Controllers {
@@ -25,10 +27,10 @@ namespace Pinetime {
 
       class WatchFaceUnix : public Screen {
       public:
-        WatchFaceUnix(DisplayApp* app,
+        WatchFaceUnix(
                          Controllers::DateTime& dateTimeController,
-                         Controllers::Battery& batteryController,
-                         Controllers::Ble& bleController,
+                         const Controllers::Battery& batteryController,
+          const Controllers::Ble& bleController,
                          Controllers::NotificationManager& notificationManager,
                          Controllers::Settings& settingsController,
                          Controllers::HeartRateController& heartRateController,
@@ -49,16 +51,16 @@ namespace Pinetime {
 
         unsigned long int currentUnixTime = 0;
 
-        DirtyValue<uint8_t> batteryPercentRemaining {};
-        DirtyValue<bool> isCharging {};
-        DirtyValue<bool> bleState {};
-        DirtyValue<bool> bleRadioEnabled {};
-        DirtyValue<std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>> currentDateTime {};
-        DirtyValue<bool> motionSensorOk {};
-        DirtyValue<uint32_t> stepCount {};
-        DirtyValue<uint8_t> heartbeat {};
-        DirtyValue<bool> heartbeatRunning {};
-        DirtyValue<bool> notificationState {};
+        Utility::DirtyValue<uint8_t> batteryPercentRemaining {};
+        Utility::DirtyValue<bool> isCharging {};
+        Utility::DirtyValue<bool> bleState {};
+        Utility::DirtyValue<bool> bleRadioEnabled {};
+        Utility::DirtyValue<std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>> currentDateTime {};
+        Utility::DirtyValue<bool> motionSensorOk {};
+        Utility::DirtyValue<uint32_t> stepCount {};
+        Utility::DirtyValue<uint8_t> heartbeat {};
+        Utility::DirtyValue<bool> heartbeatRunning {};
+        Utility::DirtyValue<bool> notificationState {};
 
         lv_obj_t* label_time;
         lv_obj_t* label_time_ampm;
@@ -66,23 +68,21 @@ namespace Pinetime {
         lv_obj_t* label_unix;
         lv_obj_t* backgroundLabel;
         lv_obj_t* bleIcon;
-        lv_obj_t* batteryPlug;
         lv_obj_t* heartbeatIcon;
         lv_obj_t* heartbeatValue;
         lv_obj_t* stepIcon;
         lv_obj_t* stepValue;
         lv_obj_t* notificationIcon;
-
-        BatteryIcon batteryIcon;
-
+        
         Controllers::DateTime& dateTimeController;
-        Controllers::Battery& batteryController;
-        Controllers::Ble& bleController;
+        const Controllers::Battery& batteryController;
+        const Controllers::Ble& bleController;
         Controllers::NotificationManager& notificationManager;
         Controllers::Settings& settingsController;
         Controllers::HeartRateController& heartRateController;
         Controllers::MotionController& motionController;
 
+        Widgets::StatusIcons statusIcons;
         lv_task_t* taskRefresh;
       };
     }

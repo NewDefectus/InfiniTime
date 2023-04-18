@@ -127,10 +127,11 @@ QuickSettings::~QuickSettings() {
   lv_style_reset(&btn_style);
   lv_task_del(taskUpdate);
   lv_obj_clean(lv_scr_act());
-  if (settingsController.GetNotificationStatus() == Controllers::Settings::Notification::Sleep) {
+  if (settingsController.GetNotificationStatus() == Controllers::Settings::Notification::Sleep && settingsController.GetBleRadioEnabled()) {
     settingsController.SetBleRadioEnabled(false);
     app->PushMessage(Pinetime::Applications::Display::Messages::BleRadioEnableToggle);
-  } else if (settingsController.GetNotificationStatus() == Controllers::Settings::Notification::On) {
+  } else if (settingsController.GetNotificationStatus() == Controllers::Settings::Notification::On && !settingsController
+                                                                                                        .GetBleRadioEnabled()) {
     settingsController.SetBleRadioEnabled(true);
     app->PushMessage(Pinetime::Applications::Display::Messages::BleRadioEnableToggle);
   }

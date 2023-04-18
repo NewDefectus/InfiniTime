@@ -112,7 +112,7 @@ std::unique_ptr<Screen> Clock::WatchFaceTerminalScreen() {
 }
 
 std::unique_ptr<Screen> Clock::WatchFaceUnixScreen() {
-  return std::make_unique<Screens::WatchFaceUnix>(app,
+  return std::make_unique<Screens::WatchFaceUnix>(
                                                       dateTimeController,
                                                       batteryController,
                                                       bleController,

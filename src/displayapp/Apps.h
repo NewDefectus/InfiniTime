@@ -1,4 +1,5 @@
 #pragma once
+#include "screens/InfiniPaint.h"
 
 namespace Pinetime {
   namespace Applications {
@@ -16,11 +17,13 @@ namespace Pinetime {
       FlashLight,
       BatteryInfo,
       Music,
+#ifdef _INCLUDE_EXTRAS
       Paint,
       Paddle,
       Twos,
-      HeartRate,
       Navigation,
+#endif
+      HeartRate,
       StopWatch,
       Metronome,
       Motion,

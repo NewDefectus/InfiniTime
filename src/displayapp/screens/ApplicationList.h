@@ -54,7 +54,6 @@ namespace Pinetime {
           {Symbols::map, Apps::Navigation},
 #endif
           {Symbols::drum, Apps::Metronome},
-          {Symbols::map, Apps::Navigation},
           {Symbols::none, Apps::None},
 
           // {"M", Apps::Motion},
