@@ -783,7 +783,8 @@ link_directories(
 
 set(COMMON_FLAGS -MP -MD -mthumb -mabi=aapcs -ftree-vrp -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin -fshort-enums -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fstack-usage -fno-exceptions -fno-non-call-exceptions)
 set(WARNING_FLAGS -Wall -Wextra -Warray-bounds=2 -Wformat=2 -Wformat-overflow=2 -Wformat-truncation=2 -Wformat-nonliteral -Wno-missing-field-initializers -Wno-unknown-pragmas -Wno-expansion-to-defined -Wreturn-type -Werror=return-type -Werror)
-set(DEBUG_FLAGS -Og -g3)
+#set(DEBUG_FLAGS -Og -g3)
+set(DEBUG_FLAGS -Os)
 set(RELEASE_FLAGS -Os)
 set(CXX_FLAGS -fno-rtti)
 set(ASM_FLAGS -x assembler-with-cpp)
@@ -830,10 +831,10 @@ endif()
 # Debug configuration
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   add_definitions(-DDEBUG)
-  add_definitions(-DDEBUG_NRF_USER)
+#  add_definitions(-DDEBUG_NRF_USER)
 
   # NRF SDK Logging
-  add_definitions(-DNRF_LOG_ENABLED=1)
+#  add_definitions(-DNRF_LOG_ENABLED=1)
   # add_definitions(-DNRF_LOG_BACKEND_RTT_ENABLED=1)
   # add_definitions(-DNRF_LOG_BACKEND_SERIAL_USES_RTT=1)
 
@@ -844,7 +845,7 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   # add_definitions(-DRTC_CONFIG_LOG_LEVEL=4)
   
   # Nimble Logging
-  add_definitions(-DMYNEWT_VAL_NEWT_FEATURE_LOGCFG=1)
+#  add_definitions(-DMYNEWT_VAL_NEWT_FEATURE_LOGCFG=1)
   # add_definitions(-DMYNEWT_VAL_LOG_LEVEL=0)
   # add_definitions(-DMYNEWT_VAL_BLE_HS_LOG_LVL=0)
 endif()

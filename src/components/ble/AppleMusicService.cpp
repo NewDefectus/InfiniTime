@@ -328,7 +328,7 @@ void AppleMusicService::event(AppleMusicService::MusicEvent event) {
   uint8_t tosend[1];
   tosend[0] = static_cast<uint8_t>(command);
   
-  uint8_t ret = ble_gattc_write_flat(connHandle, amsRemoteHandle, tosend, sizeof(tosend), nullptr, nullptr);
+  (void)ble_gattc_write_flat(connHandle, amsRemoteHandle, tosend, sizeof(tosend), nullptr, nullptr);
   NOTIF_LOG("Return code: %d, conn: %d, rem: %d, cmd: %d, size: %d", ret, connHandle, amsRemoteHandle, command, sizeof(tosend));
 }
 

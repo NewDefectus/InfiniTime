@@ -118,15 +118,16 @@ Music::Music(Pinetime::Controllers::MusicService& music) : musicService(music) {
   lv_obj_align(txtArtist, nullptr, LV_ALIGN_IN_LEFT_MID, 12, MIDDLE_OFFSET + 1 * FONT_HEIGHT);
   lv_label_set_align(txtArtist, LV_ALIGN_IN_LEFT_MID);
   lv_obj_set_width(txtArtist, LV_HOR_RES - 12);
-  lv_label_set_text_static(txtArtist, "Artist Name");
+  lv_label_set_text_static(txtArtist, "No artist name");
 
+  // Circular roll is extremely expensive CPU wise, can make stuff crash
   txtTrack = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_long_mode(txtTrack, LV_LABEL_LONG_SROLL);
   lv_obj_align(txtTrack, nullptr, LV_ALIGN_IN_LEFT_MID, 12, MIDDLE_OFFSET + 2 * FONT_HEIGHT + LINE_PAD);
 
   lv_label_set_align(txtTrack, LV_ALIGN_IN_LEFT_MID);
   lv_obj_set_width(txtTrack, LV_HOR_RES - 12);
-  lv_label_set_text_static(txtTrack, "This is a very long getTrack name");
+  lv_label_set_text_static(txtTrack, "No track name");
 
   /** Init animation */
   imgDisc = lv_img_create(lv_scr_act(), nullptr);
@@ -141,7 +142,7 @@ Music::Music(Pinetime::Controllers::MusicService& music) : musicService(music) {
 
   musicService.event(Controllers::IMusicService::EVENT_MUSIC_OPEN);
 
-  taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_MID, this);
+  taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_LOWEST, this);
 }
 
 Music::~Music() {

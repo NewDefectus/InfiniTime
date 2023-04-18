@@ -38,7 +38,7 @@ namespace Pinetime {
 
         class NotificationItem {
         public:
-          NotificationItem(Pinetime::Controllers::ICallService& alertNotificationService,
+          NotificationItem(Pinetime::Controllers::ICallService& callService,
                            Pinetime::Controllers::MotorController& motorController,
                            Pinetime::Controllers::FS& filesystem);
           NotificationItem(const char* title,

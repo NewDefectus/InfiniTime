@@ -163,9 +163,9 @@ private:
   
   uint16_t eventHandle {};
 
-  std::string artistName {"Waiting for"};
+  std::string artistName {"Apple Music"};
   std::string albumName {};
-  std::string trackName {"track information.."};
+  std::string trackName {"Not Playing"};
 
   bool playing {false};
 
