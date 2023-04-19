@@ -76,6 +76,18 @@ StopWatch::StopWatch(System::SystemTask& systemTask) : systemTask {systemTask} {
   lv_obj_align(time, msecTime, LV_ALIGN_OUT_TOP_MID, 0, 0);
 
   taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_MID, this);
+  switch (currentState) {
+    case States::Running:
+      SetInterfaceRunning();
+      break ;
+    case States::Halted:
+      SetInterfaceRunning();
+      SetInterfacePaused();
+      break ;
+    case States::Init:
+      SetInterfaceStopped();
+      break ;
+  }
   Refresh();
 }
 
@@ -90,6 +102,8 @@ void StopWatch::SetInterfacePaused() {
   lv_obj_set_style_local_bg_color(btnPlayPause, LV_BTN_PART_MAIN, LV_STATE_DEFAULT, Colors::blue);
   lv_label_set_text_static(txtPlayPause, Symbols::play);
   lv_label_set_text_static(txtStopLap, Symbols::stop);
+  RefreshOnce();
+  systemTask.PushMessage(Pinetime::System::Messages::EnableSleeping);
 }
 
 void StopWatch::SetInterfaceRunning() {
@@ -103,6 +117,14 @@ void StopWatch::SetInterfaceRunning() {
 
   lv_obj_set_state(btnStopLap, LV_STATE_DEFAULT);
   lv_obj_set_state(txtStopLap, LV_STATE_DEFAULT);
+  
+  lv_obj_set_state(btnStopLap, LV_STATE_DEFAULT);
+  lv_obj_set_state(txtStopLap, LV_STATE_DEFAULT);
+  lv_obj_set_style_local_text_color(time, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, Colors::highlight);
+  lv_obj_set_style_local_text_color(msecTime, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, Colors::highlight);
+  lv_label_set_text_static(txtPlayPause, Symbols::pause);
+  lv_label_set_text_static(txtStopLap, Symbols::lapsFlag);
+  systemTask.PushMessage(Pinetime::System::Messages::DisableSleeping);
 }
 
 void StopWatch::SetInterfaceStopped() {
@@ -131,13 +153,6 @@ void StopWatch::Start() {
   SetInterfaceRunning();
   startTime = xTaskGetTickCount();
   currentState = States::Running;
-  lv_obj_set_state(btnStopLap, LV_STATE_DEFAULT);
-  lv_obj_set_state(txtStopLap, LV_STATE_DEFAULT);
-  lv_obj_set_style_local_text_color(time, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, Colors::highlight);
-  lv_obj_set_style_local_text_color(msecTime, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, Colors::highlight);
-  lv_label_set_text_static(txtPlayPause, Symbols::pause);
-  lv_label_set_text_static(txtStopLap, Symbols::lapsFlag);
-  systemTask.PushMessage(Pinetime::System::Messages::DisableSleeping);
 }
 
 
@@ -148,7 +163,6 @@ void StopWatch::Pause() {
   oldTimeElapsed = laps[lapsDone];
   blinkTime = xTaskGetTickCount() + blinkInterval;
   currentState = States::Halted;
-  systemTask.PushMessage(Pinetime::System::Messages::EnableSleeping);
 }
 
 void StopWatch::RefreshOnce() {
