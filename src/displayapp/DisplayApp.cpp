@@ -304,8 +304,10 @@ void DisplayApp::Refresh() {
             case DisplayApp::FullRefreshDirections::Down:
               return TouchEvents::SwipeUp;
             case DisplayApp::FullRefreshDirections::LeftAnim:
+            case DisplayApp::FullRefreshDirections::Left:
               return TouchEvents::SwipeRight;
             case DisplayApp::FullRefreshDirections::RightAnim:
+            case DisplayApp::FullRefreshDirections::Right:
               return TouchEvents::SwipeLeft;
           }
         };
