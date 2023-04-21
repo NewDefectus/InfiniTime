@@ -53,6 +53,8 @@ namespace Pinetime {
         lv_obj_t* btnNext;
         lv_obj_t* btnVolDown;
         lv_obj_t* btnVolUp;
+//        lv_obj_t* btnShf;
+//        lv_obj_t* btnRpt;
         lv_obj_t* txtArtist;
         lv_obj_t* txtTrack;
         lv_obj_t* txtPlayPause;
@@ -65,7 +67,7 @@ namespace Pinetime {
 
         /** For the spinning disc animation */
         bool frameB;
-
+        
         Pinetime::Controllers::IMusicService& musicService;
 
         std::string artist;
