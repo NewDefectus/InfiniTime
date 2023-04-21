@@ -93,6 +93,26 @@ Music::Music(Pinetime::Controllers::IMusicService& music) : musicService(music) 
   lv_obj_add_style(btnNext, LV_STATE_DEFAULT, &btn_style);
   label = lv_label_create(btnNext, nullptr);
   lv_label_set_text_static(label, Symbols::stepForward);
+  
+//  btnRpt = lv_btn_create(lv_scr_act(), nullptr);
+//  btnRpt->user_data = this;
+//  lv_obj_set_event_cb(btnRpt, event_handler);
+//  lv_obj_set_size(btnRpt, 76, 76);
+//  lv_obj_align(btnRpt, nullptr, LV_ALIGN_IN_BOTTOM_LEFT, 0, 0);
+//  lv_obj_add_style(btnRpt, LV_STATE_DEFAULT, &btn_style);
+//  label = lv_label_create(btnRpt, nullptr);
+//  lv_label_set_text_static(label, Symbols::check);
+//  lv_obj_set_hidden(btnRpt, true);
+//
+//  btnShf = lv_btn_create(lv_scr_act(), nullptr);
+//  btnShf->user_data = this;
+//  lv_obj_set_event_cb(btnShf, event_handler);
+//  lv_obj_set_size(btnShf, 76, 76);
+//  lv_obj_align(btnShf, nullptr, LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
+//  lv_obj_add_style(btnShf, LV_STATE_DEFAULT, &btn_style);
+//  label = lv_label_create(btnShf, nullptr);
+//  lv_label_set_text_static(label, Symbols::map);
+//  lv_obj_set_hidden(btnShf, true);
 
   btnPlayPause = lv_btn_create(lv_scr_act(), nullptr);
   btnPlayPause->user_data = this;
@@ -139,7 +159,7 @@ Music::Music(Pinetime::Controllers::IMusicService& music) : musicService(music) 
   lv_obj_align(imgDiscAnim, nullptr, LV_ALIGN_IN_TOP_RIGHT, -15 - 32, 15);
 
   frameB = false;
-
+  
   musicService.event(Controllers::IMusicService::EVENT_MUSIC_OPEN);
 
   taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_LOWEST, this);
@@ -231,6 +251,8 @@ void Music::OnObjectEvent(lv_obj_t* obj, lv_event_t event) {
       musicService.event(Controllers::IMusicService::EVENT_MUSIC_VOLUP);
     } else if (obj == btnPrev) {
       musicService.event(Controllers::IMusicService::EVENT_MUSIC_PREV);
+    } else if (obj == btnNext) {
+      musicService.event(Controllers::IMusicService::EVENT_MUSIC_NEXT);
     } else if (obj == btnPlayPause) {
       if (playing == Pinetime::Controllers::IMusicService::MusicStatus::Playing) {
         musicService.event(Controllers::IMusicService::EVENT_MUSIC_PAUSE);
@@ -244,8 +266,6 @@ void Music::OnObjectEvent(lv_obj_t* obj, lv_event_t event) {
         // TODO: In the future should check for BT connection for better UX
         playing = Controllers::IMusicService::Playing;
       }
-    } else if (obj == btnNext) {
-      musicService.event(Controllers::IMusicService::EVENT_MUSIC_NEXT);
     }
   }
 }
@@ -253,30 +273,55 @@ void Music::OnObjectEvent(lv_obj_t* obj, lv_event_t event) {
 bool Music::OnTouchEvent(Pinetime::Applications::TouchEvents event) {
   switch (event) {
     case TouchEvents::SwipeUp: {
-      lv_obj_set_hidden(btnVolDown, false);
-      lv_obj_set_hidden(btnVolUp, false);
+      if (!lv_obj_get_hidden(btnNext)) {
+        lv_obj_set_hidden(btnVolDown, false);
+        lv_obj_set_hidden(btnVolUp, false);
 
-      lv_obj_set_hidden(btnNext, true);
-      lv_obj_set_hidden(btnPrev, true);
+        lv_obj_set_hidden(btnNext, true);
+        lv_obj_set_hidden(btnPrev, true);
+      }
+//      } else if (true) {
+//        return true;
+//      } else if (!lv_obj_get_hidden(btnVolDown)) {
+//        lv_obj_set_hidden(btnShf, false);
+//        lv_obj_set_hidden(btnRpt, false);
+//
+//        lv_btn_set_state(btnShf, musicService.isFeatureSupported(Controllers::IMusicService::EVENT_MUSIC_SHUFFLE)
+//                                   ? LV_BTN_STATE_RELEASED : LV_BTN_STATE_DISABLED);
+//        lv_btn_set_state(btnRpt, musicService.isFeatureSupported(Controllers::IMusicService::EVENT_MUSIC_REPEAT)
+//                                   ? LV_BTN_STATE_RELEASED : LV_BTN_STATE_DISABLED);
+//
+//        lv_obj_set_hidden(btnVolDown, true);
+//        lv_obj_set_hidden(btnVolUp, true);
+//      }
+      
       return true;
     }
     case TouchEvents::SwipeDown: {
-      if (lv_obj_get_hidden(btnNext)) {
+      if (!lv_obj_get_hidden(btnVolDown)) {
         lv_obj_set_hidden(btnNext, false);
         lv_obj_set_hidden(btnPrev, false);
         lv_obj_set_hidden(btnVolDown, true);
         lv_obj_set_hidden(btnVolUp, true);
-        return true;
       }
-      return false;
+//      } else if (!musicService.hasExtendedSupport()) {
+//        return true;
+//      } else if (!lv_obj_get_hidden(btnShf)) {
+//        lv_obj_set_hidden(btnVolDown, false);
+//        lv_obj_set_hidden(btnVolUp, false);
+//
+//        lv_obj_set_hidden(btnShf, true);
+//        lv_obj_set_hidden(btnRpt, true);
+//      }
+      return true;
     }
     case TouchEvents::SwipeLeft: {
-      musicService.event(Controllers::IMusicService::EVENT_MUSIC_NEXT);
-      return true;
+//      musicService.event(Controllers::IMusicService::EVENT_MUSIC_NEXT);
+      return false;
     }
     case TouchEvents::SwipeRight: {
-      musicService.event(Controllers::IMusicService::EVENT_MUSIC_PREV);
-      return true;
+//      musicService.event(Controllers::IMusicService::EVENT_MUSIC_PREV);
+      return false;
     }
     default: {
       return false;
