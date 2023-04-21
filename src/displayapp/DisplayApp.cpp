@@ -276,8 +276,10 @@ void DisplayApp::Refresh() {
             case DisplayApp::FullRefreshDirections::Down:
               return TouchEvents::SwipeUp;
             case DisplayApp::FullRefreshDirections::LeftAnim:
+            case DisplayApp::FullRefreshDirections::Left:
               return TouchEvents::SwipeRight;
             case DisplayApp::FullRefreshDirections::RightAnim:
+            case DisplayApp::FullRefreshDirections::Right:
               return TouchEvents::SwipeLeft;
           }
         };
@@ -293,6 +295,9 @@ void DisplayApp::Refresh() {
               case TouchEvents::SwipeRight:
                 LoadNewScreen(Apps::QuickSettings, DisplayApp::FullRefreshDirections::RightAnim);
                 break;
+              case TouchEvents::SwipeLeft:
+                LoadNewScreen(Apps::Music, DisplayApp::FullRefreshDirections::Left);
+                break ;
               case TouchEvents::DoubleTap:
                 PushMessageToSystemTask(System::Messages::GoToSleep);
                 break;

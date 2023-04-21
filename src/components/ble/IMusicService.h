@@ -28,6 +28,13 @@ namespace Pinetime {
         EVENT_MUSIC_PREV = 0x04,
         EVENT_MUSIC_VOLUP = 0x05,
         EVENT_MUSIC_VOLDOWN = 0x06,
+        EVENT_MUSIC_REPEAT = 0xE1,
+        EVENT_MUSIC_SHUFFLE = 0xE2,
+        EVENT_MUSIC_SEEK_FW = 0xE3,
+        EVENT_MUSIC_SEEK_BW = 0xE4,
+        EVENT_MUSIC_LIKE = 0xE5,
+        EVENT_MUSIC_DISLIKE = 0xE6,
+        EVENT_MUSIC_BOOKMARK = 0xE7,
         
       };
       
@@ -39,8 +46,14 @@ namespace Pinetime {
       virtual int getTrackLength() const;
       virtual float getPlaybackSpeed() const;
       virtual bool isPlaying() const;
+      virtual bool hasExtendedSupport() const {
+        return false;
+      };
+      virtual bool isFeatureSupported(MusicEvent /* feature */) const {
+        return false;
+      };
 
-      enum MusicStatus { NotPlaying = 0x00, Playing = 0x01 };
+      enum MusicStatus { NotPlaying = 0x00, Playing = 0x01};
     };
   }
 }

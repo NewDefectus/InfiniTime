@@ -8,7 +8,6 @@
 #include "BleUtils.h"
 #include "systemtask/SystemTask.h"
 
-#define DEBUGME __attribute__((optimize("O0")))
 
 //#define _NOTIFDBG
 //#define _AGGRESSIVEDBG
@@ -90,6 +89,7 @@ void AppleMusicService::Reset() {
   amsAttributeHandle = 0;
   amsRemoteCCCDHandle = 0;
   amsUpdateCCCDHandle = 0;
+//  supportedFeatures = 0;
   registerState = RegisterUpdateState::Reset;
 }
 
@@ -235,10 +235,18 @@ void AppleMusicService::OnNotification(ble_gap_event* event) {
     return;
   }
   if (amsRemoteHandle == event->notify_rx.attr_handle) {
-    int pktlen = OS_MBUF_PKTLEN(event->notify_rx.om);
-    char data[pktlen];
+    int pktlen = MIN(OS_MBUF_PKTLEN(event->notify_rx.om), static_cast<int>(RemoteCommandID::RemoteCommandIDMax));
+    RemoteCommandID data[static_cast<int>(RemoteCommandID::RemoteCommandIDMax)];
+    
     os_mbuf_copydata(event->notify_rx.om, 0, pktlen, data);
-    NOTIF_LOG("Available commands: (%d) -> %d %d %d %d %d", pktlen, data[0], data[1], data[2], data[3], data[4]);
+    
+    supportedFeatures = 0;
+    
+    for (int i = 0; i < pktlen; ++i) {
+      auto command = static_cast<uint8_t>(data[i]);
+      
+      supportedFeatures |= 1 << (command + 1);
+    }
   }
   if (amsUpdateHandle != event->notify_rx.attr_handle) {
     return;
@@ -308,22 +316,11 @@ void AppleMusicService::event(AppleMusicService::MusicEvent event) {
   if (!this->Ready()) {
     return;
   }
-  RemoteCommandID command = RemoteCommandID::RemoteCommandIDTogglePlayPause;
-  if (EVENT_MUSIC_PLAY == event) {
-    command = RemoteCommandID::RemoteCommandIDPlay;
-  } else if (EVENT_MUSIC_PAUSE == event) {
-    command = RemoteCommandID::RemoteCommandIDPause;
-  } else if (EVENT_MUSIC_NEXT == event) {
-    command = RemoteCommandID::RemoteCommandIDNextTrack;
-  } else if (EVENT_MUSIC_PREV == event) {
-    command = RemoteCommandID::RemoteCommandIDPreviousTrack;
-  } else if (EVENT_MUSIC_VOLUP == event) {
-    command = RemoteCommandID::RemoteCommandIDVolumeUp;
-  } else if (EVENT_MUSIC_VOLDOWN == event) {
-    command = RemoteCommandID::RemoteCommandIDVolumeDown;
-  } else {
+  if (!isFeatureSupported(event)) {
     return ;
   }
+  
+  RemoteCommandID command = musicEventToRemoteCommand(event);
   
   uint8_t tosend[1];
   tosend[0] = static_cast<uint8_t>(command);
@@ -341,3 +338,33 @@ int AppleMusicService::getProgress() const {
 int AppleMusicService::getTrackLength() const { return trackLength; }
 float AppleMusicService::getPlaybackSpeed() const { return 1; }
 bool AppleMusicService::isPlaying() const { return playing; }
+
+constexpr bool AppleMusicService::hasExtendedSupport() const {
+  return true;
+};
+
+AppleMusicService::RemoteCommandID AppleMusicService::musicEventToRemoteCommand(MusicEvent event) const {
+  switch (event) {
+    case EVENT_MUSIC_PLAY: return RemoteCommandID::RemoteCommandIDPlay;
+    case EVENT_MUSIC_PAUSE: return RemoteCommandID::RemoteCommandIDPause;
+    case EVENT_MUSIC_NEXT: return RemoteCommandID::RemoteCommandIDNextTrack;
+    case EVENT_MUSIC_PREV: return RemoteCommandID::RemoteCommandIDPreviousTrack;
+    case EVENT_MUSIC_VOLUP: return RemoteCommandID::RemoteCommandIDVolumeUp;
+    case EVENT_MUSIC_VOLDOWN: return RemoteCommandID::RemoteCommandIDVolumeDown;
+    case EVENT_MUSIC_REPEAT: return RemoteCommandID::RemoteCommandIDAdvanceRepeatMode;
+    case EVENT_MUSIC_SHUFFLE: return RemoteCommandID::RemoteCommandIDAdvanceShuffleMode;
+    case EVENT_MUSIC_SEEK_FW: return RemoteCommandID::RemoteCommandIDSkipForward;
+    case EVENT_MUSIC_SEEK_BW: return RemoteCommandID::RemoteCommandIDSkipBackward;
+    case EVENT_MUSIC_LIKE: return RemoteCommandID::RemoteCommandIDLikeTrack;
+    case EVENT_MUSIC_DISLIKE: return RemoteCommandID::RemoteCommandIDDislikeTrack;
+    case EVENT_MUSIC_BOOKMARK: return RemoteCommandID::RemoteCommandIDBookmarkTrack;
+    default:
+      return RemoteCommandID::RemoteCommandIDInvalid;
+  }
+}
+
+bool AppleMusicService::isFeatureSupported(MusicEvent feature) const {
+  RemoteCommandID command = AppleMusicService::musicEventToRemoteCommand(feature);
+  
+  return 0 != (supportedFeatures & (1 << (static_cast<uint8_t>(command) + 1)));
+};

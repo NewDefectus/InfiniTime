@@ -48,6 +48,9 @@ public:
   float getPlaybackSpeed() const override;
   bool isPlaying() const override;
   
+  constexpr bool hasExtendedSupport() const override;
+  bool isFeatureSupported(MusicEvent feature) const override;
+  
   static constexpr ble_uuid128_t amsUuid {.u {.type = BLE_UUID_TYPE_128}, // 89D3502B-0F36-433A-8EF4-C502AD55F8DC
                                           .value = {0xDC, 0xF8, 0x55, 0xAD, 0x02, 0xC5, 0xF4, 0x8E,
                                                     0x3A, 0x43, 0x36, 0x0F, 0x2B, 0x50, 0xD3, 0x89}
@@ -91,6 +94,8 @@ private:
     RemoteCommandIDLikeTrack = 11,
     RemoteCommandIDDislikeTrack = 12,
     RemoteCommandIDBookmarkTrack = 13,
+    RemoteCommandIDMax = 14,
+    RemoteCommandIDInvalid = RemoteCommandIDMax,
   };
   enum class EntityID : uint8_t {
     EntityIDPlayer = 0,
@@ -161,6 +166,8 @@ private:
     Ready,
   };
   
+  RemoteCommandID musicEventToRemoteCommand(MusicEvent event) const;
+  
   uint16_t eventHandle {};
 
   std::string artistName {"Apple Music"};
@@ -197,5 +204,7 @@ private:
   uint16_t amsAttributeHandle = 0;
   uint16_t amsRemoteCCCDHandle = 0;
   uint16_t amsUpdateCCCDHandle = 0;
+  
+  uint32_t supportedFeatures = 127; // All the basic features
 };
 
