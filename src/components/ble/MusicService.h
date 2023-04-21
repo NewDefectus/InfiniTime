@@ -47,8 +47,6 @@ namespace Pinetime {
       int getTrackLength() const override;
       float getPlaybackSpeed() const override;
       bool isPlaying() const override;
-      constexpr bool hasExtendedSupport() const override;
-      bool isFeatureSupported(MusicEvent feature) const override;
 
     private:
       struct ble_gatt_chr_def characteristicDefinition[14];
