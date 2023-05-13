@@ -160,6 +160,7 @@ namespace Pinetime {
       uint16_t ancsDataHandle = 0;
       uint16_t ancsSourceCCCDHandle = 0;
       uint16_t ancsDataCCCDHandle = 0;
+      uint8_t resetCount = 0;
 
       bool isDiscovered = false;
       Pinetime::System::SystemTask& systemTask;

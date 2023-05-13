@@ -16,7 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "displayapp/screens/Navigation.h"
-#ifdef _INCLUDE_EXTRAS
 
 #include <cstdint>
 #include "displayapp/DisplayApp.h"

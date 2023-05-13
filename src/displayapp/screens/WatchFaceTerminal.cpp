@@ -10,6 +10,7 @@
 #include "components/heartrate/HeartRateController.h"
 #include "components/motion/MotionController.h"
 #include "components/settings/Settings.h"
+#include "components/ctf/CtfController.h"
 #include "WatchFaceTerminalLogo.h"
 
 using namespace Pinetime::Applications::Screens;
@@ -32,6 +33,7 @@ WatchFaceTerminal::WatchFaceTerminal(Controllers::DateTime& dateTimeController,
     settingsController {settingsController},
     heartRateController {heartRateController},
     motionController {motionController} {
+
   batteryValue = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_recolor(batteryValue, true);
   lv_obj_align(batteryValue, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, -20);
@@ -48,8 +50,12 @@ WatchFaceTerminal::WatchFaceTerminal(Controllers::DateTime& dateTimeController,
   lv_obj_align(label_date, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, -40);
 
   label_prompt_1 = lv_label_create(lv_scr_act(), nullptr);
+  lv_label_set_recolor(label_prompt_1, true);
   lv_obj_align(label_prompt_1, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, -80);
-  lv_label_set_text_static(label_prompt_1, "user@watch:~ $ now");
+
+  label_ctf = lv_label_create(lv_scr_act(), nullptr);
+  lv_label_set_recolor(label_ctf, true);
+  lv_obj_align(label_ctf, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 60);
 
   label_time = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_recolor(label_time, true);
@@ -79,7 +85,7 @@ WatchFaceTerminal::WatchFaceTerminal(Controllers::DateTime& dateTimeController,
 
   stepValue = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_recolor(stepValue, true);
-  lv_obj_align(stepValue, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 40);
+  lv_obj_align(stepValue, lv_scr_act(), LV_ALIGN_IN_LEFT_MID, 0, 0);
   
 
   taskRefresh = lv_task_create(RefreshTaskCallback, LV_DISP_DEF_REFR_PERIOD, LV_TASK_PRIO_MID, this);
@@ -235,4 +241,11 @@ void WatchFaceTerminal::Refresh() {
   if (stepCount.IsUpdated()) {
     lv_label_set_text_fmt(stepValue, "[STEP] #004000 %lu steps#", stepCount.Get());
   }
+
+  Pinetime::Controllers::Ctf* ctfController = Pinetime::Controllers::Ctf::getInstance();
+
+  std::string ctf_solved;
+  ctfController->getSolved(ctf_solved);
+
+  lv_label_set_text_fmt(label_ctf, "[LVL ] #00FF00 %s#", ctf_solved.c_str());
 }

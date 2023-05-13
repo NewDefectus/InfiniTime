@@ -7,6 +7,7 @@
 #include "Symbols.h"
 #include <lvgl/src/lv_core/lv_style.h>
 #include <lvgl/src/lv_core/lv_obj.h>
+#include "components/ctf/CtfController.h"
 
 namespace Pinetime {
   namespace Controllers {

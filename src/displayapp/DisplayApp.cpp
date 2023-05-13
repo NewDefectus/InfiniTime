@@ -1,5 +1,6 @@
 #include "displayapp/DisplayApp.h"
 #include <libraries/log/nrf_log.h>
+#include <displayapp/screens/TheCrypt.h>
 #include "displayapp/screens/HeartRate.h"
 #include "displayapp/screens/Motion.h"
 #include "displayapp/screens/Timer.h"
@@ -30,6 +31,7 @@
 #include "displayapp/screens/Weather.h"
 #include "displayapp/screens/PassKey.h"
 #include "displayapp/screens/Error.h"
+#include "displayapp/screens/Sched.h"
 
 #include "drivers/Cst816s.h"
 #include "drivers/St7789.h"

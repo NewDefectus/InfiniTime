@@ -163,23 +163,23 @@ void NimbleController::StartAdvertising() {
   }
 
   fields.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
-  fields.name = reinterpret_cast<const uint8_t*>(deviceName);
-  fields.name_len = strlen(deviceName);
-  fields.name_is_complete = 1;
+//  fields.name = reinterpret_cast<const uint8_t*>(deviceName);
+//  fields.name_len = strlen(deviceName);
+//  fields.name_is_complete = 1;
   fields.uuids128 = &dfuServiceUuid;
   fields.num_uuids128 = 1;
   fields.uuids128_is_complete = 1;
 //  fields.sol_uuids128 = &ancsServiceUuid;
 //  fields.num_sol_uuids128 = 1;
-  fields.appearance = 0x0086; // Wearable computer (watch size)
-  fields.appearance_is_present = 1;
+//  fields.appearance = 0x0086; // Wearable computer (watch size)
+//  fields.appearance_is_present = 1;
   fields.tx_pwr_lvl = BLE_HS_ADV_TX_PWR_LVL_AUTO;
 
   rsp_fields.name = reinterpret_cast<const uint8_t*>(deviceName);
   rsp_fields.name_len = strlen(deviceName);
   rsp_fields.name_is_complete = 1;
-  rsp_fields.appearance = 0x0086; // Wearable computer (watch size)
-  rsp_fields.appearance_is_present = 1;
+//  rsp_fields.appearance = 0x0086; // Wearable computer (watch size)
+//  rsp_fields.appearance_is_present = 1;
 //  rsp_fields.uuids128 = &dfuServiceUuid;
 //  rsp_fields.num_uuids128 = 1;
 //  rsp_fields.uuids128_is_complete = 1;

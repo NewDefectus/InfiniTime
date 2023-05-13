@@ -18,7 +18,7 @@ Paddle::Paddle(Pinetime::Components::LittleVgl& lvgl) : lvgl {lvgl} {
 
   points = lv_label_create(lv_scr_act(), nullptr);
   lv_obj_set_style_local_text_font(points, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &jetbrains_mono_42);
-  lv_label_set_text_static(points, "0000");
+  lv_label_set_text(points, "0000");
   lv_obj_align(points, lv_scr_act(), LV_ALIGN_IN_TOP_MID, 0, 10);
 
   paddle = lv_obj_create(lv_scr_act(), nullptr);
@@ -48,6 +48,7 @@ void Paddle::Refresh() {
   // checks if it has touched the sides (floor and ceiling)
   if (ballY <= 1 || ballY >= LV_VER_RES - ballSize - 2) {
     dy *= -1;
+    changeRandomBallColor();
   }
 
   // checks if it has touched the side (right side)
@@ -60,6 +61,7 @@ void Paddle::Refresh() {
     if (dy < -5) {
       dy = -5;
     }
+    changeRandomBallColor();
   }
 
   // checks if it is in the position of the paddle
@@ -68,6 +70,7 @@ void Paddle::Refresh() {
       if (ballY <= (paddlePos + 30 - ballSize / 4) && ballY >= (paddlePos - 30 - ballSize + ballSize / 4)) {
         dx *= -1;
         score++;
+        changeRandomBallColor();
       }
     }
     // checks if it has gone behind the paddle
@@ -78,6 +81,19 @@ void Paddle::Refresh() {
     }
   }
   lv_label_set_text_fmt(points, "%04d", score);
+
+  if (score == party_threshold) {
+    Pinetime::Controllers::Ctf* ctfController = Pinetime::Controllers::Ctf::getInstance();
+    ctfController->addSolve(3);
+    party_mode = true;
+  }
+}
+
+void Paddle::changeRandomBallColor() {
+  if(party_mode) {
+      lv_color_t randomColor = LV_COLOR_MAKE(rand() % 255, rand() % 255, rand() % 255);
+      lv_obj_set_style_local_bg_color(ball, LV_BTN_PART_MAIN, LV_STATE_DEFAULT, randomColor);
+  }
 }
 
 bool Paddle::OnTouchEvent(Pinetime::Applications::TouchEvents /*event*/) {

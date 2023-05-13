@@ -44,7 +44,7 @@ WatchFaceUnix::WatchFaceUnix(Controllers::DateTime& dateTimeController,
   lv_obj_align(notificationIcon, nullptr, LV_ALIGN_IN_TOP_LEFT, 0, 0);
 
   label_unix = lv_label_create(lv_scr_act(), nullptr);
-  lv_obj_align(label_unix, lv_scr_act(), LV_ALIGN_IN_BOTTOM_MID, 0, -15);
+  lv_obj_align(label_unix, lv_scr_act(), LV_ALIGN_IN_BOTTOM_MID, 0, -20);
   lv_obj_set_style_local_text_color(label_unix, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x30c803));
 
   aram_logo.header.always_zero = 0; // Initialization
@@ -65,7 +65,7 @@ WatchFaceUnix::WatchFaceUnix(Controllers::DateTime& dateTimeController,
 
   label_date = lv_label_create(lv_scr_act(), nullptr);
   lv_obj_set_style_local_text_color(label_date, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x999999));
-  lv_obj_align(label_date, lv_scr_act(), LV_ALIGN_IN_BOTTOM_MID, 0, -42);
+  lv_obj_align(label_date, lv_scr_act(), LV_ALIGN_IN_BOTTOM_MID, 0, -47);
 
   label_time_ampm = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_text_static(label_time_ampm, "");
@@ -175,19 +175,11 @@ void WatchFaceUnix::Refresh() {
 
     if ((year != currentYear) || (month != currentMonth) || (dayOfWeek != currentDayOfWeek) || (day != currentDay)) {
       if (settingsController.GetClockType() == Controllers::Settings::ClockType::H24) {
-        lv_label_set_text_fmt(label_date,
-                              "%s %d %s %d",
-                              dateTimeController.DayOfWeekShortToString(),
-                              day,
-                              dateTimeController.MonthShortToString(),
-                              year);
+        lv_label_set_text_fmt(
+          label_date, "%s %d %s %d", dateTimeController.DayOfWeekShortToString(), day, dateTimeController.AramonthShortToString(), year);
       } else {
-        lv_label_set_text_fmt(label_date,
-                              "%s %s %d %d",
-                              dateTimeController.DayOfWeekShortToString(),
-                              dateTimeController.MonthShortToString(),
-                              day,
-                              year);
+        lv_label_set_text_fmt(
+          label_date, "%s %s %d %d", dateTimeController.DayOfWeekShortToString(), dateTimeController.AramonthShortToString(), day, year);
       }
       lv_obj_realign(label_date);
 
