@@ -1,4 +1,7 @@
 #pragma once
+
+#define _INCLUDE_EXTRAS
+
 #ifdef _INCLUDE_EXTRAS
 
 #include <lvgl/src/lv_core/lv_obj.h>
