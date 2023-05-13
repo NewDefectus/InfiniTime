@@ -8,6 +8,7 @@ namespace {
   char const* DaysStringShort[] = {"--", "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"};
   char const* DaysStringShortLow[] = {"--", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
   char const* MonthsString[] = {"--", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+  char const* AraMonthsString[] = {"", "", "", "ARAMAR", "", "ARAMAY", "", "", "", "", "", "", ""};
   char const* MonthsStringLow[] = {"--", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 }
 
@@ -107,6 +108,15 @@ const char* DateTime::MonthShortToString() const {
   return MonthsString[static_cast<uint8_t>(Month())];
 }
 
+const char* DateTime::AramonthShortToString() const {
+  // AraMonthsString
+  const char * month = MonthsString[static_cast<uint8_t>(Month())];
+  if (MonthsString[static_cast<uint8_t>(Month())][0] == 'M') {
+    return AraMonthsString[static_cast<uint8_t>(Month())];
+  }
+  return month;
+}
+
 const char* DateTime::DayOfWeekShortToString() const {
   return DaysStringShort[static_cast<uint8_t>(DayOfWeek())];
 }
@@ -119,8 +129,8 @@ const char* DateTime::DayOfWeekShortToStringLow() const {
   return DaysStringShortLow[static_cast<uint8_t>(DayOfWeek())];
 }
 
-void DateTime::Register(Pinetime::System::SystemTask* systemTask) {
-  this->systemTask = systemTask;
+void DateTime::Register(Pinetime::System::SystemTask* systemTask2) {
+  this->systemTask = systemTask2;
 }
 
 using ClockType = Pinetime::Controllers::Settings::ClockType;

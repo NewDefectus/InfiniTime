@@ -1,5 +1,6 @@
 #include "displayapp/DisplayApp.h"
 #include <libraries/log/nrf_log.h>
+#include <displayapp/screens/TheCrypt.h>
 #include "displayapp/screens/HeartRate.h"
 #include "displayapp/screens/Motion.h"
 #include "displayapp/screens/Timer.h"
@@ -29,6 +30,7 @@
 #include "displayapp/screens/Steps.h"
 #include "displayapp/screens/PassKey.h"
 #include "displayapp/screens/Error.h"
+#include "displayapp/screens/Sched.h"
 
 #include "drivers/Cst816s.h"
 #include "drivers/St7789.h"
@@ -535,13 +537,21 @@ void DisplayApp::LoadScreen(Apps app, DisplayApp::FullRefreshDirections directio
     case Apps::Paddle:
       currentScreen = std::make_unique<Screens::Paddle>(lvgl);
       break;
+#ifdef _INCLUDE_EXTRAS_NAV
     case Apps::Navigation:
       currentScreen = std::make_unique<Screens::Navigation>(systemTask->nimble().navigation());
       break;
 #endif
+#endif
     case Apps::Music:
       currentScreen = std::make_unique<Screens::Music>(systemTask->nimble().music());
       break;
+    case Apps::Sched:
+      currentScreen = std::make_unique<Screens::Schedule>();
+      break;
+    case Apps::Crypt:
+      currentScreen = std::make_unique<Screens::TheCrypt>(dateTimeController);
+      break ;
     case Apps::HeartRate:
       currentScreen = std::make_unique<Screens::HeartRate>(heartRateController, *systemTask);
       break;

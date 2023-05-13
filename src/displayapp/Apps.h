@@ -21,9 +21,13 @@ namespace Pinetime {
       Paint,
       Paddle,
       Twos,
+#ifdef _INCLUDE_EXTRAS_NAV
       Navigation,
 #endif
+#endif
       HeartRate,
+      Crypt,
+      Sched,
       StopWatch,
       Metronome,
       Motion,

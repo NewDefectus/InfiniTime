@@ -7,6 +7,7 @@
 #include <lvgl/lvgl.h>
 #include <cstdint>
 #include "displayapp/screens/Screen.h"
+#include "components/ctf/CtfController.h"
 
 namespace Pinetime {
   namespace Components {
@@ -26,6 +27,8 @@ namespace Pinetime {
         bool OnTouchEvent(TouchEvents event) override;
         bool OnTouchEvent(uint16_t x, uint16_t y) override;
 
+        void changeRandomBallColor();
+
       private:
         Pinetime::Components::LittleVgl& lvgl;
 
@@ -40,6 +43,10 @@ namespace Pinetime {
         int8_t dy = 3; // Velocity of the ball in the y_coordinate
 
         uint16_t score = 0;
+
+        // For a special surprise
+        int const party_threshold = 0x17;
+        bool party_mode = false;
 
         lv_obj_t* points;
         lv_obj_t* paddle;

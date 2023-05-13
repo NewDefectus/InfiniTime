@@ -118,7 +118,8 @@ int AppleNotificationCenterServiceClient::OnNewAlertSubcribe(uint16_t connection
     if (error->status == BLE_HS_ATT_ERR(BLE_ATT_ERR_INSUFFICIENT_AUTHEN) || error->status == BLE_ATT_ERR_INSUFFICIENT_AUTHEN)
     {
       ble_gap_security_initiate(connectionHandle);
-      requireReset = true;
+      if (++resetCount < 5)
+        requireReset = true;
     }
   }
   if (isReady)

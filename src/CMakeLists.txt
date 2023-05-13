@@ -435,7 +435,9 @@ list(APPEND SOURCE_FILES
         displayapp/screens/WatchFacePineTimeStyle.cpp
         displayapp/screens/WatchFaceCasioStyleG7710.cpp
 
-        ##
+        ## Con stuff
+        displayapp/screens/Sched.cpp
+        displayapp/screens/TheCrypt.cpp
 
         main.cpp
         drivers/St7789.cpp
@@ -479,6 +481,7 @@ list(APPEND SOURCE_FILES
         components/timer/TimerController.cpp
         components/alarm/AlarmController.cpp
         components/fs/FS.cpp
+        components/ctf/CtfController.cpp
         drivers/Cst816s.cpp
         FreeRTOS/port.c
         FreeRTOS/port_cmsis_systick.c
@@ -624,6 +627,13 @@ set(INCLUDE_FILES
         displayapp/widgets/PageIndicator.h
         displayapp/widgets/DotIndicator.h
         displayapp/widgets/StatusIcons.h
+
+        # Con stuff
+        displayapp/screens/schedule_events.h
+        displayapp/screens/Sched.h
+        displayapp/screens/TheCrypt.h
+        displayapp/screens/TheCryptImage.h
+
         drivers/St7789.h
         drivers/SpiNorFlash.h
         drivers/SpiMaster.h
@@ -665,6 +675,7 @@ set(INCLUDE_FILES
         components/settings/Settings.h
         components/timer/TimerController.h
         components/alarm/AlarmController.h
+        components/ctf/CtfController.h
         drivers/Cst816s.h
         FreeRTOS/portmacro.h
         FreeRTOS/portmacro_cmsis.h
