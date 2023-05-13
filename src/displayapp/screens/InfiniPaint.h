@@ -1,5 +1,7 @@
 #pragma once
 
+#define _INCLUDE_EXTRAS
+
 #ifdef _INCLUDE_EXTRAS
 #include <lvgl/lvgl.h>
 #include <cstdint>
