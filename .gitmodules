@@ -10,3 +10,6 @@
 [submodule "src/libs/arduinoFFT"]
 	path = src/libs/arduinoFFT
 	url = https://github.com/kosme/arduinoFFT.git
+[submodule "src/libs/date"]
+	path = src/libs/date
+	url = https://github.com/HowardHinnant/date.git
