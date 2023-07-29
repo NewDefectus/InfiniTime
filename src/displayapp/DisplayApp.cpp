@@ -141,25 +141,25 @@ void DisplayApp::InitHw() {
 
 void DisplayApp::Refresh() {
   auto LoadPreviousScreen = [this]() {
-    FullRefreshDirections returnDirection;
+    FullRefreshDirections returnDirection2;
     switch (appStackDirections.Pop()) {
       case FullRefreshDirections::Up:
-        returnDirection = FullRefreshDirections::Down;
+        returnDirection2 = FullRefreshDirections::Down;
         break;
       case FullRefreshDirections::Down:
-        returnDirection = FullRefreshDirections::Up;
+        returnDirection2 = FullRefreshDirections::Up;
         break;
       case FullRefreshDirections::LeftAnim:
-        returnDirection = FullRefreshDirections::RightAnim;
+        returnDirection2 = FullRefreshDirections::RightAnim;
         break;
       case FullRefreshDirections::RightAnim:
-        returnDirection = FullRefreshDirections::LeftAnim;
+        returnDirection2 = FullRefreshDirections::LeftAnim;
         break;
       default:
-        returnDirection = FullRefreshDirections::None;
+        returnDirection2 = FullRefreshDirections::None;
         break;
     }
-    LoadScreen(returnAppStack.Pop(), returnDirection);
+    LoadScreen(returnAppStack.Pop(), returnDirection2);
   };
 
   auto DimScreen = [this]() {
