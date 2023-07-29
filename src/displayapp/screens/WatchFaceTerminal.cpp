@@ -135,8 +135,7 @@ void WatchFaceTerminal::Refresh() {
     }
   }
 
-  currentDateTime = dateTimeController.CurrentDateTime();
-
+  currentDateTime = std::chrono::time_point_cast<std::chrono::seconds>(dateTimeController.CurrentDateTime());
   if (currentDateTime.IsUpdated()) {
     auto hour = dateTimeController.Hours();
     auto minute = dateTimeController.Minutes();
@@ -227,9 +226,8 @@ void WatchFaceTerminal::Refresh() {
   }
 
   stepCount = motionController.NbSteps();
-  motionSensorOk = motionController.IsSensorOk();
-  if (stepCount.IsUpdated() || motionSensorOk.IsUpdated()) {
-    lv_label_set_text_fmt(stepValue, "[STEP] #004000 %lu steps#", stepCount.Get());
+  if (stepCount.IsUpdated()) {
+    lv_label_set_text_fmt(stepValue, "[STEP]#ee3377 %lu steps#", stepCount.Get());
   }
 
   Pinetime::Controllers::Ctf* ctfController = Pinetime::Controllers::Ctf::getInstance();
