@@ -290,7 +290,7 @@ void AppleNotificationCenterServiceClient::EndDataPacket() {
     case CategoryID::CategoryIDMissedCall:
       currentNotif.category = NotificationManager::Categories::MissedCall;
 //      systemTask.PushMessage(System::Messages::StopRinging);
-      systemTask.PushMessage(System::Messages::OnTimerDone);
+//      systemTask.PushMessage(System::Messages::OnTimerDone);
       break;
     default:
       currentNotif.category = NotificationManager::Categories::SimpleAlert;

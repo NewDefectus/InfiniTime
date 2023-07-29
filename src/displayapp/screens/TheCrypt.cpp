@@ -3,6 +3,8 @@
 #include "displayapp/screens/TheCrypt.h"
 #include "displayapp/DisplayApp.h"
 
+#ifdef _INCLUDE_CON
+
 using namespace Pinetime::Applications::Screens;
 
 // 4 Ajaw 8 Kumk’u
@@ -114,3 +116,4 @@ namespace Pinetime { namespace Applications { namespace Screens {
     return 2;
   }
 } } }
+#endif

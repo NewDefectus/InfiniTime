@@ -57,6 +57,14 @@ namespace Pinetime {
         lv_obj_t* stepValue;
         lv_obj_t* notificationIcon;
         lv_obj_t* connectState;
+        
+        uint8_t displayedHour;
+        uint8_t displayedMinute;
+        uint8_t displayedSecond;
+        uint16_t currentYear;
+        Controllers::DateTime::Months currentMonth;
+        Controllers::DateTime::Days currentDayOfWeek;
+        uint8_t currentDay;
 
         Controllers::DateTime& dateTimeController;
         const Controllers::Battery& batteryController;

@@ -26,8 +26,10 @@ namespace Pinetime {
 #endif
 #endif
       HeartRate,
+#ifdef _INCLUDE_CON
       Crypt,
       Sched,
+#endif
       StopWatch,
       Metronome,
       Motion,

@@ -4,7 +4,7 @@
 #include <string>
 #include <algorithm>
 
-
+#ifdef _INCLUDE_CON
 namespace Pinetime::Controllers {
   class Ctf {
   protected:
@@ -25,3 +25,4 @@ namespace Pinetime::Controllers {
     bool checkSolve(int index);
   };
 }
+#endif

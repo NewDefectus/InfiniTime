@@ -83,8 +83,10 @@ void Paddle::Refresh() {
   lv_label_set_text_fmt(points, "%04d", score);
 
   if (score == party_threshold) {
+  #ifdef _INCLUDE_CON
     Pinetime::Controllers::Ctf* ctfController = Pinetime::Controllers::Ctf::getInstance();
     ctfController->addSolve(3);
+  #endif
     party_mode = true;
   }
 }

@@ -1,4 +1,6 @@
+#ifdef _INCLUDE_CON
 #include "components/ctf/CtfController.h"
+
 
 using namespace Pinetime::Controllers;
 
@@ -30,3 +32,4 @@ void Ctf::addSolve(int index) {
 bool Ctf::checkSolve(int index) {
   return index >= 0 && index < getNumOfLevels() && solved[index] == 'F';
 }
+#endif

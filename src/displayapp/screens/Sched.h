@@ -6,6 +6,7 @@
 #include <memory>
 #include "components/ctf/CtfController.h"
 
+#ifdef _INCLUDE_CON
 namespace Pinetime { namespace Applications { namespace Screens {
   class Schedule : public Screen {
   public:
@@ -24,3 +25,4 @@ namespace Pinetime { namespace Applications { namespace Screens {
     ::lv_obj_t* instructions_label;
   };
 } } }
+#endif

@@ -50,7 +50,7 @@ Clock::Clock(Controllers::DateTime& dateTimeController,
         case WatchFace::Terminal:
           return WatchFaceTerminalScreen();
           break;
-        case 4: // TODO
+        case WatchFace::Unix:
           return WatchFaceUnixScreen();
           break;
         case WatchFace::Infineat:
