@@ -25,6 +25,11 @@ namespace {
     NotificationsOff = LV_STATE_DEFAULT,
     Sleep = 0x40,
   };
+  
+  enum class RadioButtonState : lv_state_t {
+    RadioOn = LV_STATE_CHECKED,
+    RadioOff = LV_STATE_DEFAULT,
+  };
 }
 
 QuickSettings::QuickSettings(Pinetime::Applications::DisplayApp* app,
@@ -76,13 +81,21 @@ QuickSettings::QuickSettings(Pinetime::Applications::DisplayApp* app,
   btn2->user_data = this;
   lv_obj_set_event_cb(btn2, ButtonEventHandler);
   lv_obj_add_style(btn2, LV_BTN_PART_MAIN, &btn_style);
+  static constexpr lv_color_t bluetooth = LV_COLOR_MAKE(0x00, 0x82, 0xfc);
+  lv_obj_set_style_local_bg_color(btn2, LV_BTN_PART_MAIN, static_cast<lv_state_t>(RadioButtonState::RadioOn), bluetooth);
   lv_obj_set_size(btn2, buttonWidth, buttonHeight);
   lv_obj_align(btn2, nullptr, LV_ALIGN_IN_TOP_RIGHT, -buttonXOffset, barHeight);
+  
+  if (settingsController.GetBleRadioEnabled()) {
+    lv_obj_set_state(btn2, static_cast<lv_state_t>(RadioButtonState::RadioOn));
+  } else {
+    lv_obj_set_state(btn2, static_cast<lv_state_t>(RadioButtonState::RadioOff));
+  }
 
   lv_obj_t* lbl_btn;
   lbl_btn = lv_label_create(btn2, nullptr);
   lv_obj_set_style_local_text_font(lbl_btn, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &lv_font_sys_48);
-  lv_label_set_text_static(lbl_btn, Symbols::flashlight);
+  lv_label_set_text_static(lbl_btn, Symbols::bluetooth_48);
 
   btn3 = lv_btn_create(lv_scr_act(), nullptr);
   btn3->user_data = this;
@@ -127,14 +140,6 @@ QuickSettings::~QuickSettings() {
   lv_style_reset(&btn_style);
   lv_task_del(taskUpdate);
   lv_obj_clean(lv_scr_act());
-  if (settingsController.GetNotificationStatus() == Controllers::Settings::Notification::Sleep && settingsController.GetBleRadioEnabled()) {
-    settingsController.SetBleRadioEnabled(false);
-    app->PushMessage(Pinetime::Applications::Display::Messages::BleRadioEnableToggle);
-  } else if (settingsController.GetNotificationStatus() == Controllers::Settings::Notification::On && !settingsController
-                                                                                                        .GetBleRadioEnabled()) {
-    settingsController.SetBleRadioEnabled(true);
-    app->PushMessage(Pinetime::Applications::Display::Messages::BleRadioEnableToggle);
-  }
   settingsController.SaveSettings();
 }
 
@@ -145,7 +150,14 @@ void QuickSettings::UpdateScreen() {
 
 void QuickSettings::OnButtonEvent(lv_obj_t* object) {
   if (object == btn2) {
-    app->StartApp(Apps::FlashLight, DisplayApp::FullRefreshDirections::Up);
+    if (settingsController.GetBleRadioEnabled()) {
+      settingsController.SetBleRadioEnabled(false);
+      lv_obj_set_state(btn2, static_cast<lv_state_t>(RadioButtonState::RadioOff));
+    } else {
+      settingsController.SetBleRadioEnabled(true);
+      lv_obj_set_state(btn2, static_cast<lv_state_t>(RadioButtonState::RadioOn));
+    }
+    app->PushMessage(Pinetime::Applications::Display::Messages::BleRadioEnableToggle);
   } else if (object == btn1) {
 
     brightness.Step();

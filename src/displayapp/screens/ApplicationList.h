@@ -70,7 +70,7 @@ namespace Pinetime {
 #endif
 
           {Symbols::drum, Apps::Metronome},
-          {Symbols::none, Apps::None},
+          {Symbols::flashlight_small, Apps::FlashLight},
 #ifndef _INCLUDE_CON
           {Symbols::none, Apps::None},
           {Symbols::none, Apps::None},
