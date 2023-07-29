@@ -17,8 +17,12 @@ namespace {
       case Pinetime::Controllers::HeartRateController::States::Running:
         return "Measuring...";
       case Pinetime::Controllers::HeartRateController::States::Stopped:
+#ifdef _INCLUDE_CON
         Pinetime::Controllers::Ctf* ctfController = Pinetime::Controllers::Ctf::getInstance();
         return ctfController->checkSolve(2) ? "Stopped" : "Stopped, CTF? 137";
+#else
+        return "Stopped";
+#endif
     }
     return "";
   }
@@ -86,6 +90,7 @@ void HeartRate::Refresh() {
       break;
     default:
       const uint32_t hr = heartRateController.HeartRate();
+#ifdef _INCLUDE_CON
       if (hr >= 137)
       {
         Pinetime::Controllers::Ctf* ctfController = Pinetime::Controllers::Ctf::getInstance();
@@ -98,6 +103,7 @@ void HeartRate::Refresh() {
           lv_obj_align(ctf_flag_solved_label, nullptr, ::LV_ALIGN_CENTER, 0, 0);
         }
       }
+#endif
       lv_label_set_text_fmt(label_hr, "%03d", hr);
   }
 

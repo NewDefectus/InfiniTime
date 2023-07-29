@@ -3,6 +3,13 @@
 #include <memory>
 #include "displayapp/screens/Screen.h"
 #include "displayapp/screens/ScreenList.h"
+#include <components/ctf/CtfController.h>
+
+#ifdef _INCLUDE_CON
+  #define NUM_SCREENS (6)
+#else
+  #define NUM_SCREENS (5)
+#endif
 
 namespace Pinetime {
   namespace Controllers {
@@ -43,7 +50,7 @@ namespace Pinetime {
         Pinetime::Controllers::MotionController& motionController;
         const Pinetime::Drivers::Cst816S& touchPanel;
 
-        ScreenList<6> screens;
+        ScreenList<NUM_SCREENS> screens;
 
         static bool sortById(const TaskStatus_t& lhs, const TaskStatus_t& rhs);
 
@@ -52,7 +59,9 @@ namespace Pinetime {
         std::unique_ptr<Screen> CreateScreen3();
         std::unique_ptr<Screen> CreateScreen4();
         std::unique_ptr<Screen> CreateScreen5();
+#ifdef _INCLUDE_CON
         std::unique_ptr<Screen> CreateScreen6();
+#endif
       };
     }
   }

@@ -1,3 +1,4 @@
+#ifdef _INCLUDE_CON
 #include <ctime>
 #include <array>
 #include <chrono>
@@ -122,3 +123,4 @@ namespace Pinetime { namespace Applications { namespace Screens {
     ::lv_label_set_text_fmt(this->entry_length_label, "%d minutes", entry.length.count());
   }
 } } }
+#endif

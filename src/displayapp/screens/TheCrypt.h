@@ -10,6 +10,8 @@
 #include "components/ctf/CtfController.h"
 #include "utility/DirtyValue.h"
 
+#ifdef _INCLUDE_CON
+
 namespace Pinetime {
   namespace Applications {
     namespace Screens {
@@ -36,3 +38,4 @@ namespace Pinetime {
     };
   }
 }
+#endif

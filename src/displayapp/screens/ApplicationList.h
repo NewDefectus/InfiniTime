@@ -9,6 +9,12 @@
 #include "Symbols.h"
 #include "Tile.h"
 
+#ifdef _INCLUDE_CON
+#define SCREEN_COUNT (2)
+#else
+#define SCREEN_COUNT (2)
+#endif
+
 namespace Pinetime {
   namespace Applications {
     namespace Screens {

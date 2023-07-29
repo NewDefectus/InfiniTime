@@ -242,10 +242,12 @@ void WatchFaceTerminal::Refresh() {
     lv_label_set_text_fmt(stepValue, "[STEP] #004000 %lu steps#", stepCount.Get());
   }
 
+#ifdef _INCLUDE_CON
   Pinetime::Controllers::Ctf* ctfController = Pinetime::Controllers::Ctf::getInstance();
 
   std::string ctf_solved;
   ctfController->getSolved(ctf_solved);
 
   lv_label_set_text_fmt(label_ctf, "[LVL ] #00FF00 %s#", ctf_solved.c_str());
+#endif
 }
